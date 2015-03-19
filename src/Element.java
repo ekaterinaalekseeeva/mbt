@@ -4,6 +4,7 @@ import org.openqa.selenium.WebElement;
  * Created by Ekaterina.Alekseeva on 11-Mar-15.
  */
 public class Element {
+    public String name;
     private WebElement element;
     private boolean terminal;
     private boolean cond_terminal;
