@@ -4,8 +4,10 @@ import org.openqa.selenium.WebElement;
  * Created by Ekaterina.Alekseeva on 11-Mar-15.
  */
 public class Element {
-    public String name;
-    private WebElement element;
+//    public String name;
+    private String selector;
+    private int number;
+//    private WebElement element;
     private boolean terminal;
     private boolean cond_terminal;
     private boolean special_cond;
@@ -22,30 +24,50 @@ public class Element {
 //    marked = false;
 //    }
 
-    public Element(WebElement el){
-        element = el;
-        terminal = false;
-        cond_terminal = false;
-        special_cond = false;
-        action = "";
-        marked = false;
-    }
+//    public Element(WebElement el){
+//        element = el;
+//        terminal = false;
+//        cond_terminal = false;
+//        special_cond = false;
+//        action = "";
+//        marked = false;
+//        name = element.getTagName() + " " + element.getAttribute("title") + " " + element.getAttribute("id") + " " + element.getLocation();
+//    }
 
     public Element(){
-        element = null;
+//        element = null;
+        selector = "";
+        number = 0;
         terminal = false;
         cond_terminal = false;
         special_cond = false;
         action = "";
         marked = false;
+//        name = element.getTagName() + " " + element.getAttribute("title") + " " + element.getAttribute("id") + " " + element.getLocation();
     }
 
-    public WebElement getElement (){
-        return element;
+//    public WebElement getElement (){
+//        return element;
+//    }
+
+    //    public void setElement (WebElement value){
+//        element = value;
+//    }
+
+    public void setSelector (String value){
+        selector = value;
     }
 
-    public void setElement (WebElement value){
-        element = value;
+    public String getSelector (){
+        return selector;
+    }
+
+    public void setNumber(int value){
+        number = value;
+    }
+
+    public int getNumber () {
+        return number;
     }
 
     public boolean getTerminal(){

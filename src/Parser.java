@@ -30,36 +30,21 @@ public class Parser {
 //            "input button",
             "textarea"};
 
-//    private static String[] neededElements;
     public static ArrayList<WebElement> foundWebElements = new ArrayList<WebElement>();
     public static ArrayList<Element> foundElements = new ArrayList<Element>();
 
-    // Concatenation of two string arrays
-//    private static String[] concatArray(String[] a, String[] b) {
-//        if (a == null)
-//            return b;
-//        if (b == null)
-//            return a;
-//        String[] r = new String[a.length + b.length];
-//        System.arraycopy(a, 0, r, 0, a.length);
-//        System.arraycopy(b, 0, r, a.length, b.length);
-//        return r;
-//    }
-
 //    Checks page in current state, seeks for necessary elements, adds new appeared elements
     public static void parsingElements(String selector, String action, Element parent){
-//         tmpEl; // pending element
         List<WebElement> elems = driver.findElements(By.cssSelector(selector));
         for (WebElement elem : elems) {
-//                System.out.println(elem + elem.getAttribute("id") + elem.getLocation());
             if (!foundWebElements.contains(elem)) {
-//                System.out.println("added " + elem.getTagName() + " with text:  " + elem.getText() + " with title: " + elem.getAttribute("title"));
-                Element tmpEl = new Element(elem);
+                Element tmpEl = new Element();
+                tmpEl.setSelector(selector);
+                tmpEl.setNumber(elems.indexOf(elem));
                 tmpEl.setAction(action);
                 tmpEl.setParent(parent);
                 foundElements.add(tmpEl);
                 foundWebElements.add(elem);
-//                System.out.println("added " + foundElements.get(foundElements.size()-1) + foundElements.get(foundElements.size()-1).getElement() + "\n");
             }
         }
     }
@@ -81,7 +66,7 @@ public class Parser {
         String tag; // web element tag name
         for (Element elem : foundElements){
             if (!elem.isMarked()){
-                element = elem.getElement();
+                element = getElement(elem);
                 tag = element.getTagName();
                 if ((tag.equals("a") && element.getAttribute("href") != null)||(tag.equals("button") && element.getAttribute("id").contains("print"))){
                     elem.setTerminal(true);
@@ -92,6 +77,11 @@ public class Parser {
                 elem.makeMarked();
             }
         }
+    }
+
+    public static WebElement getElement(Element e){
+        List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
+        return elems.get(e.getNumber());
     }
 
     public static ArrayList<Element> elementLineage(Element element){
@@ -116,10 +106,10 @@ public class Parser {
         for (int i = lineage.size()-1; i >= 0; i--){
             elem = lineage.get(i);
             if (elem.getAction().equals("click")){
-                elem.getElement().click();
+                getElement(elem).click();
             } else {
                 //todo: m.b. random text generation?
-                elem.getElement().sendKeys("sdfihsdifhsid234211@#!#$@^\\%@^*&!||&&//?,.`~");
+                getElement(elem).sendKeys("sdfihsdifhsid234211@#!#$@^\\%@^*&!||&&//?,.`~");
             }
             //todo: wait until page is updated
             try {
@@ -131,10 +121,6 @@ public class Parser {
     }
 
     public static void process (Element parent) {
-//        neededElements = concatArray(clickableElements, writableElements);
-
-//        driver.get(url);
-
         int numberOfElements = foundElements.size();
 
         parsingPage(parent);
@@ -158,28 +144,29 @@ public class Parser {
 
 
         for (Element elem : foundElements){
+            // Logging
             System.out.println("---------------------------------------------------------------------");
             System.out.println("New parsing:");
             System.out.println(elem);
             if (elem.getParent() == null){
-                System.out.println(elem + " " + elem.getElement().getTagName() + " Is terminal: " + elem.getTerminal());
+                System.out.println(elem + " " + getElement(elem).getTagName() + " Is terminal: " + elem.getTerminal());
             }
 
-            if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && elem.getElement().isDisplayed() && elem != parent) {
+            // Processing of non-terminal common elements
+            if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && getElement(elem).isDisplayed() && elem != parent) {
                 System.out.println("------------- IF");
-                System.out.println(elem.getElement().getText() + " " + elem.getElement().getAttribute("id"));
+                System.out.println(getElement(elem).getText() + " " + getElement(elem).getAttribute("id"));
                 if (elem.getParent() != null) {
                     driver.navigate().refresh();
                     reproduceElementAppearance(elem);
                 }
                 if (elem.getAction().equals("click")) {
-                    elem.getElement().click();
+                    getElement(elem).click();
                 } else {
-                    //                    System.out.println("write");
                     //todo: m.b. random text generation?
-                    elem.getElement().sendKeys("sdfihsdifhsid234211@#!#$@^\\%@^*&!||&&//?,.`~");
+                    getElement(elem).sendKeys("sdfihsdifhsid234211@#!#$@^\\%@^*&!||&&//?,.`~");
                 }
-                //                todo: wait until page is updated
+                //todo: wait until page is updated
                 try {
                     Thread.sleep(1500);                 //1000 milliseconds is one second.
                 } catch (InterruptedException ex) {
@@ -199,17 +186,6 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-//        driver.get("http://unit-530.labs.intellij.net:8080/dashboard#");
-//        try {
-//            Thread.sleep(5000);                 //1000 milliseconds is one second.
-//        } catch(InterruptedException ex) {
-//            Thread.currentThread().interrupt();
-//        }
-//        WebElement el = driver.findElement(By.cssSelector("button"));
-//        System.out.println(el);
-//        driver.close();
-//        process("http://unit-530.labs.intellij.net:8080/dashboard?tab=learn+youtrack", null);
-//        process("http://unit-530.labs.intellij.net:8080/issue/BDP-652", null);
         driver.get("http://unit-530.labs.intellij.net:8080/issue/BDP-652");
         //todo: waiting
         try {
@@ -219,32 +195,5 @@ public class Parser {
         }
 
         process(null);
-
-//        WebElement elem = driver.findElement(By.cssSelector("td[tabid='History']"));
-//        Element e1 = new Element(elem);
-//        e1.setAction("click");
-//        elem = driver.findElement(By.cssSelector("td[tabid='Similar Issues']"));
-//        Element e2 = new Element(elem);
-//        e2.setAction("click");
-//        e2.setParent(e1);
-//        elem = driver.findElement(By.cssSelector("button[id='id_l.I.tb.printIssue']"));
-//        Element e3 = new Element(elem);
-//        e3.setAction("click");
-//        e3.setParent(e2);
-//
-//        if (e3.getParent() != null){
-//            reproduceElementAppearance(e3);
-//        }
-//        try {
-//            Thread.sleep(2000);                 //1000 milliseconds is one second.
-//        } catch(InterruptedException ex) {
-//            Thread.currentThread().interrupt();
-//        }
-//        if (e3.getAction().equals("click")){
-//            System.out.println("click");
-//            e3.getElement().click();
-//        } else {
-//                    System.out.println("write");
-//        }
     }
 }
