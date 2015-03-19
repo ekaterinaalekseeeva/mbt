@@ -12,6 +12,8 @@ import java.util.List;
  */
 public class Parser {
     private static WebDriver driver = new FirefoxDriver();
+    private static Pages pages = new Pages();
+
 
 //    TODO: think about adding other elements (div?)
     private static String[] clickableElements = {
@@ -34,11 +36,12 @@ public class Parser {
     public static ArrayList<Element> foundElements = new ArrayList<Element>();
 
 //    Checks page in current state, seeks for necessary elements, adds new appeared elements
-    public static void parsingElements(String selector, String action, Element parent){
+    public static void parsingElements(String selector, String action, Element parent, boolean terminal){
         List<WebElement> elems = driver.findElements(By.cssSelector(selector));
         for (WebElement elem : elems) {
             if (!foundWebElements.contains(elem)) {
                 Element tmpEl = new Element();
+                tmpEl.setTerminal(terminal);
                 tmpEl.setSelector(selector);
                 tmpEl.setNumber(elems.indexOf(elem));
                 tmpEl.setAction(action);
@@ -50,34 +53,45 @@ public class Parser {
     }
 
 // Calls parsing method for different types of elements
-    public static void parsingPage(Element parent){
+    public static void parsingPage(String pageName, Element parent){
+        ArrayList<String> terminal = new ArrayList<String>();
+        for (Pages.Page p : pages.pagesList){
+            if (p.name.equals(pageName)){
+                terminal = p.terminalElementsSelectors;
+            }
+        }
+
+        for (String selector: terminal){
+            parsingElements(selector, "click", parent, true);
+        }
+
         for (String selector : clickableElements) {
-            parsingElements(selector, "click", parent);
+            parsingElements(selector, "click", parent, false);
         }
 
         for (String selector : writableElements) {
-            parsingElements(selector, "write", parent);
+            parsingElements(selector, "write", parent, false);
         }
     }
 
 // Marking terminal (or terminal in special conditions) and requiring special handling elements
-    public static void markingElements () {
-        WebElement element; // web element of Element object
-        String tag; // web element tag name
-        for (Element elem : foundElements){
-            if (!elem.isMarked()){
-                element = getElement(elem);
-                tag = element.getTagName();
-                if ((tag.equals("a") && element.getAttribute("href") != null)||(tag.equals("button") && element.getAttribute("id").contains("print"))){
-                    elem.setTerminal(true);
-                }
-
-    //            TODO: get list of terminal and special elements for current page (e.g. from external file)
-
-                elem.makeMarked();
-            }
-        }
-    }
+//    public static void markingElements () {
+//        WebElement element; // web element of Element object
+//        String tag; // web element tag name
+//        for (Element elem : foundElements){
+//            if (!elem.isMarked()){
+//                element = getElement(elem);
+//                tag = element.getTagName();
+//                if ((tag.equals("a") && element.getAttribute("href") != null)||(tag.equals("button") && element.getAttribute("id").contains("print"))){
+//                    elem.setTerminal(true);
+//                }
+//
+//    //            TODO: get list of terminal and special elements for current page (e.g. from external file)
+//
+//                elem.makeMarked();
+//            }
+//        }
+//    }
 
     public static WebElement getElement(Element e){
         List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
@@ -120,12 +134,12 @@ public class Parser {
         }
     }
 
-    public static void process (Element parent) {
+    public static void process (String pageName, Element parent) {
         int numberOfElements = foundElements.size();
 
-        parsingPage(parent);
+        parsingPage(pageName, parent);
 
-        markingElements();
+//        markingElements();
 
 //        for (Element foundElement : foundElements) {
 //            System.out.println(foundElement + " " + foundElement.getElement());
@@ -173,7 +187,7 @@ public class Parser {
                     Thread.currentThread().interrupt();
                 }
                 System.out.println("Enter recursion");
-                process(elem);
+                process(pageName, elem);
                 System.out.println("Exit recursion");
                 driver.navigate().refresh();
             }
@@ -186,6 +200,7 @@ public class Parser {
     }
 
     public static void main(String[] args) {
+        String pageName = "FSI";
         driver.get("http://unit-530.labs.intellij.net:8080/issue/BDP-652");
         //todo: waiting
         try {
@@ -194,6 +209,6 @@ public class Parser {
             Thread.currentThread().interrupt();
         }
 
-        process(null);
+        process(pageName, null);
     }
 }
