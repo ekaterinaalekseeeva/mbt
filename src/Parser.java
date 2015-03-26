@@ -18,7 +18,7 @@ public class Parser {
 //    TODO: think about adding other elements (div?)
     private static String[] clickableElements = {
             "a",
-            "a[href]",
+//            "a[href]",
             "button",
             "span.checkbox",
             "span[class*='toggle']",
@@ -54,16 +54,25 @@ public class Parser {
 
 // Calls parsing method for different types of elements
     public static void parsingPage(String pageName, Element parent){
+        System.out.println("parsingPage entered!");
         ArrayList<String> terminal = new ArrayList<String>();
+//        System.out.println(pages);
+//        System.out.println(pages.pagesList);
         for (Pages.Page p : pages.pagesList){
+//            System.out.println(p.name);
             if (p.name.equals(pageName)){
                 terminal = p.terminalElementsSelectors;
             }
         }
 
         for (String selector: terminal){
+            System.out.println(selector);
             parsingElements(selector, "click", parent, true);
         }
+
+//        for (Element foundElement : foundElements) {
+//            System.out.println(foundElement + " " + foundElement.getTerminal());
+//        }
 
         for (String selector : clickableElements) {
             parsingElements(selector, "click", parent, false);
@@ -156,22 +165,25 @@ public class Parser {
             return;
         }
 
-
-        for (Element elem : foundElements){
+//        for (Element elem : foundElements) {
+        for (int i = numberOfElements; i < foundElements.size(); i++) {
             // Logging
+            Element elem = foundElements.get(i);
             System.out.println("---------------------------------------------------------------------");
             System.out.println("New parsing:");
             System.out.println(elem);
-            if (elem.getParent() == null){
-                System.out.println(elem + " " + getElement(elem).getTagName() + " Is terminal: " + elem.getTerminal());
+            if (elem.getParent() == null) {
+                System.out.println(elem + " " + getElement(elem).getTagName() + " " + getElement(elem).getAttribute("class") + " " +
+                        getElement(elem).getAttribute("id") + " Is terminal: " + elem.getTerminal() + " Is displayed: " + getElement(elem).isDisplayed());
             }
 
             // Processing of non-terminal common elements
             if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && getElement(elem).isDisplayed() && elem != parent) {
                 System.out.println("------------- IF");
-                System.out.println(getElement(elem).getText() + " " + getElement(elem).getAttribute("id"));
-                if (elem.getParent() != null) {
-                    driver.navigate().refresh();
+                System.out.println(getElement(elem).getTagName() + " " + getElement(elem).getText() + " " + getElement(elem).getAttribute("id") + " " +
+                        getElement(elem).getAttribute("title") + " " + getElement(elem).getAttribute("class") + " " + getElement(elem).getAttribute("cn") + " Is displayed: " + getElement(elem).isDisplayed());
+                if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
+//                        driver.navigate().refresh();
                     reproduceElementAppearance(elem);
                 }
                 if (elem.getAction().equals("click")) {
@@ -189,11 +201,10 @@ public class Parser {
                 System.out.println("Enter recursion");
                 process(pageName, elem);
                 System.out.println("Exit recursion");
-                driver.navigate().refresh();
+//                    driver.navigate().refresh();
             }
 
             // todo: special conditions processing
-
         }
 
         driver.close();
