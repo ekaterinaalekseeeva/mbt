@@ -2,6 +2,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.List;
  */
 public class Parser {
     private static WebDriver driver = new FirefoxDriver();
+//    private static WebDriver driver;
+
     private static Pages pages = new Pages();
 
 
@@ -211,6 +214,8 @@ public class Parser {
     }
 
     public static void main(String[] args) {
+//        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWD\\chromedriver\\chromedriver.exe");
+//        driver =  new ChromeDriver();
         String pageName = "FSI";
         driver.get("http://unit-530.labs.intellij.net:8080/issue/BDP-652");
         //todo: waiting
