@@ -280,6 +280,7 @@ public class Parser {
             // Processing of non-terminal common elements
             if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && getElement(elem).isDisplayed() && elem != parent) {
                 System.out.println("------------- IF");
+                System.out.println(getElement(elem).getTagName());
 //                System.out.print(getElement(elem).getTagName() + " " + getElement(elem).getText() + " " + getElement(elem).getAttribute("id") + " ");
 //                System.out.print(getElement(elem).getAttribute("title") + " " + getElement(elem).getAttribute("class") + " " + getElement(elem).getAttribute("cn"));
 //                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
@@ -308,8 +309,6 @@ public class Parser {
 
             // todo: special conditions processing
         }
-
-        driver.close();
     }
 
     public static void main(String[] args) {
@@ -337,5 +336,7 @@ public class Parser {
 //        }
 
         process(pageName, null);
+
+        driver.close();
     }
 }
