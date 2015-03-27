@@ -15,7 +15,7 @@ public class Pages {
         termElems.add("div.contentWrapper > ul.comboboxList > li");
         Page tmpPage = new Page(page, url, termElems);
         System.out.println("new page added:");
-        System.out.println(tmpPage.name + " " + tmpPage.terminalElementsSelectors.get(0) + " " + tmpPage.terminalElementsSelectors.get(5));
+        System.out.println(tmpPage.name);
         pagesList.add(tmpPage);
     }
 

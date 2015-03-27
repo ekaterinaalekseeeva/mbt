@@ -5,6 +5,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +40,8 @@ public class Parser {
 
     public static ArrayList<WebElement> foundWebElements = new ArrayList<WebElement>();
     public static ArrayList<Element> foundElements = new ArrayList<Element>();
+
+    public static int graphCounter = 0;
 
 //    Checks page in current state, seeks for necessary elements, adds new appeared elements
     public static void parsingElements(String selector, String action, Element parent, boolean terminal){
@@ -146,6 +151,97 @@ public class Parser {
         }
     }
 
+    public static void drawGraph(){
+        System.out.println("Drawing graph");
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter("GUIgraph"+graphCounter));
+
+            out.write("graph GUIgraph" + graphCounter + " {\n");
+            StringBuilder curStr = new StringBuilder();
+            String resStr;
+            for (Element e: foundElements) {
+                curStr.delete(0, curStr.length());
+                curStr.append(e);
+                curStr.append(" [label=\"");
+                curStr.append(getElement(e).getTagName());
+                curStr.append(" ");
+                curStr.append(getElement(e).getText());
+                curStr.append(" ");
+                curStr.append(getElement(e).getAttribute("id"));
+                curStr.append(" ");
+                curStr.append(getElement(e).getAttribute("title"));
+                curStr.append(getElement(e).getAttribute("class"));
+                curStr.append(getElement(e).getAttribute("cn"));
+                curStr.append("\"];");
+                resStr = curStr.toString();
+                resStr = resStr.replaceAll("\n", "");
+                resStr = resStr.replaceAll("@", "");
+                out.write(resStr + "\n");
+                if (e.getParent() != null) {
+                    curStr.delete(0, curStr.length());
+                    curStr.append(e);
+                    for (Element lin : elementLineage(e)) {
+                        curStr.append(" -- ");
+                        curStr.append(lin);
+                    }
+                    curStr.append(";");
+                    resStr = curStr.toString();
+                    resStr = resStr.replaceAll("@", "");
+                    out.write(resStr + "\n");
+                }
+            }
+            out.write("}");
+
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        graphCounter++;
+
+//        System.out.println("\n\ngraph graphname {");
+//
+//        StringBuilder curStr = new StringBuilder();
+//        String resStr;
+//        for (Element e: foundElements){
+//            curStr.delete(0, curStr.length());
+//            curStr.append(e);
+//            curStr.append(" [label=\"");
+//            curStr.append(getElement(e).getTagName());
+//            curStr.append(" ");
+//            curStr.append(getElement(e).getText());
+//            curStr.append(" ");
+//            curStr.append(getElement(e).getAttribute("id"));
+//            curStr.append(" ");
+//            curStr.append(getElement(e).getAttribute("title"));
+//            curStr.append(getElement(e).getAttribute("class"));
+//            curStr.append(getElement(e).getAttribute("cn"));
+//            curStr.append("\"];");
+//            resStr = curStr.toString();
+//            resStr = resStr.replaceAll("\n", "");
+//            resStr = resStr.replaceAll("@", "");
+//            System.out.println(resStr);
+////            System.out.print(e + " [label=\"" + getElement(e).getTagName() + " " + getElement(e).getText() + " " + getElement(e).getAttribute("id") + " ");
+////            System.out.println(getElement(e).getAttribute("title") + " " + getElement(e).getAttribute("class") + " " + getElement(e).getAttribute("cn") + "\"];");
+//            if (e.getParent() != null){
+//                curStr.delete(0, curStr.length());
+////                System.out.print(e);
+//                curStr.append(e);
+//                for (Element lin: elementLineage(e)){
+////                    System.out.print("  --  " + lin);
+//                    curStr.append(" -- ");
+//                    curStr.append(lin);
+//                }
+//                curStr.append(";");
+//                resStr = curStr.toString();
+//                resStr = resStr.replaceAll("@", "");
+//                System.out.println(resStr);
+////                System.out.println(";");
+//            }
+//        }
+
+//        System.out.println("}\n\n");
+    }
+
     public static void process (String pageName, Element parent) {
         int numberOfElements = foundElements.size();
 
@@ -167,6 +263,7 @@ public class Parser {
         if (foundElements.size() == numberOfElements){
             return;
         }
+        drawGraph();
 
 //        for (Element elem : foundElements) {
         for (int i = numberOfElements; i < foundElements.size(); i++) {
@@ -175,16 +272,17 @@ public class Parser {
             System.out.println("---------------------------------------------------------------------");
             System.out.println("New parsing:");
             System.out.println(elem);
-            if (elem.getParent() == null) {
-                System.out.println(elem + " " + getElement(elem).getTagName() + " " + getElement(elem).getAttribute("class") + " " +
-                        getElement(elem).getAttribute("id") + " Is terminal: " + elem.getTerminal() + " Is displayed: " + getElement(elem).isDisplayed());
-            }
+//            if (elem.getParent() == null) {
+//                System.out.print(elem + " " + getElement(elem).getTagName() + " " + getElement(elem).getAttribute("class") + " ");
+//                System.out.println(getElement(elem).getAttribute("id") + " Is terminal: " + elem.getTerminal() + " Is displayed: " + getElement(elem).isDisplayed());
+//            }
 
             // Processing of non-terminal common elements
             if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && getElement(elem).isDisplayed() && elem != parent) {
                 System.out.println("------------- IF");
-                System.out.println(getElement(elem).getTagName() + " " + getElement(elem).getText() + " " + getElement(elem).getAttribute("id") + " " +
-                        getElement(elem).getAttribute("title") + " " + getElement(elem).getAttribute("class") + " " + getElement(elem).getAttribute("cn") + " Is displayed: " + getElement(elem).isDisplayed());
+//                System.out.print(getElement(elem).getTagName() + " " + getElement(elem).getText() + " " + getElement(elem).getAttribute("id") + " ");
+//                System.out.print(getElement(elem).getAttribute("title") + " " + getElement(elem).getAttribute("class") + " " + getElement(elem).getAttribute("cn"));
+//                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
                 if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
 //                        driver.navigate().refresh();
                     reproduceElementAppearance(elem);
@@ -205,6 +303,7 @@ public class Parser {
                 process(pageName, elem);
                 System.out.println("Exit recursion");
 //                    driver.navigate().refresh();
+                        drawGraph();
             }
 
             // todo: special conditions processing
@@ -224,6 +323,18 @@ public class Parser {
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
+
+//        driver.findElement(By.cssSelector("a.arrow")).click();
+//        List<WebElement> elems = driver.findElements(By.cssSelector("div.contentWrapper > ul.comboboxList > li"));
+//        List<WebElement> elems2 = driver.findElements(By.cssSelector("ul.comboboxList > li"));
+//
+//        for (WebElement el: elems){
+//            System.out.println(el);
+//        }
+//
+//        for (WebElement el: elems2){
+//            System.out.println(el);
+//        }
 
         process(pageName, null);
     }
