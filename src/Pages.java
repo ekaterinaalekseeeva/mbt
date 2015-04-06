@@ -7,13 +7,23 @@ public class Pages {
     public ArrayList<Page> pagesList = new ArrayList<Page>();
 
     public Pages(){
-//        ArrayList<Page> pagesList;
         String page = "FSI";
         String url = "localhost/issue/";
         ArrayList<String> termElems = new ArrayList<String>();
         termElems.add("button[cn*='goto']");
         termElems.add("div.contentWrapper > ul.comboboxList > li");
-        Page tmpPage = new Page(page, url, termElems);
+        ArrayList<String> ignElems = new ArrayList<String>();
+        ignElems.add("span.issue-toggler-ico");
+        ignElems.add("a.issue-toggler");
+        ignElems.add("a.disabled");
+        ignElems.add("input[type='hidden']");
+        Page tmpPage = new Page(page, url, termElems, ignElems);
+        SpecialConditionsElement el = new SpecialConditionsElement();
+        el.selector = "span.comments-toggler-ico";
+        el.action = "click";
+        el.type = "search area";
+        el.area = "div.issue-comments";
+        tmpPage.specialConditionsElements.add(el);
         System.out.println("new page added:");
         System.out.println(tmpPage.name);
         pagesList.add(tmpPage);
@@ -23,10 +33,11 @@ public class Pages {
         public String name;
         public String url;
         public ArrayList<String> terminalElementsSelectors = new ArrayList<String>();
-        //todo: specialConditionElements
+        public ArrayList<String> ignoredElementsSelectors = new ArrayList<String>();
+        public ArrayList<SpecialConditionsElement> specialConditionsElements = new ArrayList<SpecialConditionsElement>();
         public ArrayList<ConditionallyTerminalElement> conditionallyTerminalElements = new ArrayList<ConditionallyTerminalElement>();
 
-        public Page (String pageName, String pageUrl, ArrayList<String> termElems){
+        public Page (String pageName, String pageUrl, ArrayList<String> termElems, ArrayList<String> ignElems){
             terminalElementsSelectors.add("a[href]");
             terminalElementsSelectors.add("button[id*='print']");
             terminalElementsSelectors.add("span.search-panel__search-ico");
@@ -35,6 +46,7 @@ public class Pages {
             name = pageName;
             url = pageUrl;
             terminalElementsSelectors.addAll(termElems);
+            ignoredElementsSelectors.addAll(ignElems);
 //            for (String sel : terminalElementsSelectors){
 //                System.out.println(sel);
 //            }

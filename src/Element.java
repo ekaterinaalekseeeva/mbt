@@ -1,10 +1,7 @@
-import org.openqa.selenium.WebElement;
-
 /**
  * Created by Ekaterina.Alekseeva on 11-Mar-15.
  */
 public class Element {
-//    public String name;
     private String selector;
     private int number;
 //    private WebElement element;
@@ -14,6 +11,7 @@ public class Element {
     private String action;
     private Element parent;
     private boolean marked;
+    private SpecialConditionsElement spCondEl;
 
 //    public Element(WebElement el, boolean term, boolean cond_term, boolean spec_cond, String act){
 //        element = el;
@@ -97,6 +95,7 @@ public class Element {
     public void setSpecialCond(boolean value){
         if (!terminal){
             special_cond = value;
+            spCondEl = new SpecialConditionsElement();
         }
     }
 
@@ -128,4 +127,13 @@ public class Element {
         return marked;
     }
 
+    public void setSpCondEl(SpecialConditionsElement el){
+        if (special_cond){
+            spCondEl = el;
+        }
+    }
+
+    public SpecialConditionsElement getSpCondEl(){
+        return spCondEl;
+    }
 }

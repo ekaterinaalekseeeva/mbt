@@ -9,7 +9,7 @@ public class ConditionallyTerminalElement {
     public String action; // click or write
     public ArrayList<Condition> conditions = new ArrayList<Condition>();
 
-    private class Condition{
+    public class Condition{
         String neededElementSelector;
         String neededAction;
         boolean specialProcessing; //todo: if true, search for this element in specialCondElements list
