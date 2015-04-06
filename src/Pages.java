@@ -7,23 +7,31 @@ public class Pages {
     public ArrayList<Page> pagesList = new ArrayList<Page>();
 
     public Pages(){
+        addFSI();
+    }
+
+    private void addFSI(){
         String page = "FSI";
         String url = "localhost/issue/";
         ArrayList<String> termElems = new ArrayList<String>();
         termElems.add("button[cn*='goto']");
         termElems.add("div.contentWrapper > ul.comboboxList > li");
+
         ArrayList<String> ignElems = new ArrayList<String>();
         ignElems.add("span.issue-toggler-ico");
         ignElems.add("a.issue-toggler");
         ignElems.add("a.disabled");
         ignElems.add("input[type='hidden']");
+
         Page tmpPage = new Page(page, url, termElems, ignElems);
+
         SpecialConditionsElement el = new SpecialConditionsElement();
         el.selector = "span.comments-toggler-ico";
         el.action = "click";
         el.type = "search area";
         el.area = "div.issue-comments";
         tmpPage.specialConditionsElements.add(el);
+
         System.out.println("new page added:");
         System.out.println(tmpPage.name);
         pagesList.add(tmpPage);

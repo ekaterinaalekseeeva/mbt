@@ -45,13 +45,11 @@ public class Parser {
 
 //    Checks page in current state, seeks for necessary elements, adds new appeared elements
     public static void parsingElements(String selector, String action, Element parent, boolean ignored, boolean terminal, boolean specialCond, boolean condTerminal, SpecialConditionsElement spCondEl){
-        System.out.println(selector + " " + ignored);
         List<WebElement> elems = driver.findElements(By.cssSelector(selector));
         for (WebElement elem : elems) {
             if (!foundWebElements.contains(elem)) {
                 foundWebElements.add(elem);
                 if (!ignored) {
-                    System.out.println("Not ignored" + elem.getTagName() + " " + elem.getAttribute("class") + " " + elem.getAttribute("id"));
                     Element tmpEl = new Element();
                     tmpEl.setTerminal(terminal);
                     tmpEl.setSpecialCond(specialCond);
@@ -75,10 +73,7 @@ public class Parser {
         ArrayList<String> terminal = new ArrayList<String>();
         ArrayList<String> ignored = new ArrayList<String>();
         ArrayList<SpecialConditionsElement> specialCond = new ArrayList<SpecialConditionsElement>();
-//        System.out.println(pages);
-//        System.out.println(pages.pagesList);
         for (Pages.Page p : pages.pagesList){
-//            System.out.println(p.name);
             if (p.name.equals(pageName)){
                 terminal = p.terminalElementsSelectors;
                 ignored = p.ignoredElementsSelectors;
@@ -133,7 +128,7 @@ public class Parser {
             for (SpecialConditionsElement.AllowedSelector s : selectors){
                 if (s.action.equals("click")) {
                     parsingElements(s.selector, "click", parent, false, false, false, false, null);
-                } else if (s.action.equals("wrte")) {
+                } else if (s.action.equals("write")) {
                     parsingElements(s.selector, "write", parent, false, false, false, false, null);
                 }
             }
@@ -252,15 +247,6 @@ public class Parser {
         int numberOfElements = foundElements.size();
 
         parsingPage(pageName, parent, area, selectors);
-
-//        for (Element foundElement : foundElements) {
-//            System.out.println(foundElement + " " + foundElement.getElement());
-//        }
-
-//        System.out.println("webelements!!!");
-//        for (WebElement e : foundWebElements){
-//            System.out.println(e + e.getTagName() + e.getLocation());
-//        }
 
 //        If no new elements were found, exit function
         System.out.println("old size = " + numberOfElements + " new size = " + foundElements.size());
