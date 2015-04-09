@@ -156,9 +156,12 @@ public class Parser {
 //    }
 
     public static WebElement getElement(Element e){
-//        List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
-//        return elems.get(e.getNumber());
-        return e.getElement();
+        try{
+            return e.getElement();
+        } catch (StaleElementReferenceException exception){
+            List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
+            return elems.get(e.getNumber());
+        }
     }
 
     public static ArrayList<Element> elementLineage(Element element){
