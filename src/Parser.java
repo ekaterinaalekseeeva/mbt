@@ -51,6 +51,7 @@ public class Parser {
                 foundWebElements.add(elem);
                 if (!ignored) {
                     Element tmpEl = new Element();
+                    tmpEl.setElement(elem);
                     tmpEl.setTerminal(terminal);
                     tmpEl.setSpecialCond(specialCond);
                     if (specialCond){
@@ -91,7 +92,7 @@ public class Parser {
             }
 
             System.out.println(selector);
-            parsingElements(selector, "click", parent, true, false, false, false, null);
+            parsingElements(selector, Constants.action_click, parent, true, false, false, false, null);
         }
 
         for (String s: terminal){
@@ -102,7 +103,7 @@ public class Parser {
             }
 
             System.out.println(selector);
-            parsingElements(selector, "click", parent, false, true, false, false, null);
+            parsingElements(selector, Constants.action_click, parent, false, true, false, false, null);
         }
 
         for (SpecialConditionsElement el: specialCond){
@@ -113,23 +114,23 @@ public class Parser {
             }
 
             System.out.println(selector);
-            parsingElements(selector, "click", parent, false, false, true, false, el);
+            parsingElements(selector, Constants.action_click, parent, false, false, true, false, el);
         }
 
         if (selectors == null) {
             for (String s : clickableElements) {
-                parsingElements(s, "click", parent, false, false, false, false, null);
+                parsingElements(s, Constants.action_click, parent, false, false, false, false, null);
             }
 
             for (String s : writableElements) {
-                parsingElements(s, "write", parent, false, false, false, false, null);
+                parsingElements(s, Constants.action_write, parent, false, false, false, false, null);
             }
         } else {
             for (SpecialConditionsElement.AllowedSelector s : selectors){
-                if (s.action.equals("click")) {
-                    parsingElements(s.selector, "click", parent, false, false, false, false, null);
-                } else if (s.action.equals("write")) {
-                    parsingElements(s.selector, "write", parent, false, false, false, false, null);
+                if (s.action.equals(Constants.action_click)) {
+                    parsingElements(s.selector, Constants.action_click, parent, false, false, false, false, null);
+                } else if (s.action.equals(Constants.action_write)) {
+                    parsingElements(s.selector, Constants.action_write, parent, false, false, false, false, null);
                 }
             }
         }
@@ -155,8 +156,9 @@ public class Parser {
 //    }
 
     public static WebElement getElement(Element e){
-        List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
-        return elems.get(e.getNumber());
+//        List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
+//        return elems.get(e.getNumber());
+        return e.getElement();
     }
 
     public static ArrayList<Element> elementLineage(Element element){
@@ -180,7 +182,7 @@ public class Parser {
         Element elem;
         for (int i = lineage.size()-1; i >= 0; i--){
             elem = lineage.get(i);
-            if (elem.getAction().equals("click")){
+            if (elem.getAction().equals(Constants.action_click)){
                 getElement(elem).click();
             } else {
                 //todo: m.b. random text generation?
@@ -196,7 +198,7 @@ public class Parser {
     }
 
     public static void drawGraph(){
-        System.out.println("Drawing graph");
+        System.out.println("Drawing graph " + graphCounter);
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter("GUIgraph"+graphCounter));
 
@@ -270,15 +272,17 @@ public class Parser {
             // Processing of non-terminal common elements
             if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && getElement(elem).isDisplayed() && elem != parent) {
                 System.out.println("------------- IF");
-                System.out.println(getElement(elem).getTagName());
-                //                System.out.print(getElement(elem).getTagName() + " " + getElement(elem).getText() + " " + getElement(elem).getAttribute("id") + " ");
-                //                System.out.print(getElement(elem).getAttribute("title") + " " + getElement(elem).getAttribute("class") + " " + getElement(elem).getAttribute("cn"));
-                //                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
                 if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
                     //                        driver.navigate().refresh();
                     reproduceElementAppearance(elem);
                 }
-                if (elem.getAction().equals("click")) {
+
+                System.out.println(getElement(elem).getTagName());
+                                System.out.print(getElement(elem).getTagName() + " " + getElement(elem).getText() + " " + getElement(elem).getAttribute("id") + " ");
+                                System.out.print(getElement(elem).getAttribute("title") + " " + getElement(elem).getAttribute("class") + " " + getElement(elem).getAttribute("cn"));
+                                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
+
+                if (elem.getAction().equals(Constants.action_click)) {
                     getElement(elem).click();
                 } else {
                     //todo: m.b. random text generation?
@@ -304,7 +308,7 @@ public class Parser {
                     reproduceElementAppearance(elem);
                 }
 
-                if (elem.getSpCondEl().type.equals("search area")){
+                if (elem.getSpCondEl().type.equals(Constants.type_search_area)){
                     getElement(elem).click();
 
                     //todo: wait until page is updated
@@ -317,7 +321,7 @@ public class Parser {
                     System.out.println("Enter recursion");
                     process(pageName, elem, elem.getSpCondEl().area, null);
                     System.out.println("Exit recursion");
-                } else if (elem.getSpCondEl().type.equals("search elements")){
+                } else if (elem.getSpCondEl().type.equals(Constants.type_search_elements)){
                     getElement(elem).click();
 
                     //todo: wait until page is updated
@@ -330,7 +334,7 @@ public class Parser {
                     System.out.println("Enter recursion");
                     process(pageName, elem, null, elem.getSpCondEl().allowedSelectors);
                     System.out.println("Exit recursion");
-                } else if (elem.getSpCondEl().type.equals("write")){
+                } else if (elem.getSpCondEl().type.equals(Constants.type_write)){
 //                    getElement(elem).sendKeys(elem.getSpCondEl().allowedWrite);
                 } else {
                     System.out.println("Unknown type");

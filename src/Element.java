@@ -1,10 +1,12 @@
+import org.openqa.selenium.WebElement;
+
 /**
  * Created by Ekaterina.Alekseeva on 11-Mar-15.
  */
 public class Element {
     private String selector;
     private int number;
-//    private WebElement element;
+    private WebElement element;
     private boolean terminal;
     private boolean cond_terminal;
     private boolean special_cond;
@@ -33,7 +35,7 @@ public class Element {
 //    }
 
     public Element(){
-//        element = null;
+        element = null;
         selector = "";
         number = 0;
         terminal = false;
@@ -44,13 +46,13 @@ public class Element {
 //        name = element.getTagName() + " " + element.getAttribute("title") + " " + element.getAttribute("id") + " " + element.getLocation();
     }
 
-//    public WebElement getElement (){
-//        return element;
-//    }
+    public WebElement getElement (){
+        return element;
+    }
 
-    //    public void setElement (WebElement value){
-//        element = value;
-//    }
+        public void setElement (WebElement value){
+        element = value;
+    }
 
     public void setSelector (String value){
         selector = value;
