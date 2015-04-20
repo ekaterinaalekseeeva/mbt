@@ -157,6 +157,7 @@ public class Parser {
 
     public static WebElement getElement(Element e){
         try{
+            e.getElement().getTagName();
             return e.getElement();
         } catch (StaleElementReferenceException exception){
             List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
@@ -348,10 +349,23 @@ public class Parser {
         }
     }
 
+    public static void login(){
+        driver.get("http://unit-530.labs.intellij.net:8080/hub/auth/login");
+        try {
+            Thread.sleep(1500);
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+        driver.findElement(By.cssSelector("input#username")).sendKeys("root");
+        driver.findElement(By.cssSelector("input#password")).sendKeys("root");
+        driver.findElement(By.cssSelector("button.login-button")).click();
+    }
+
     public static void main(String[] args) {
 //        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWD\\chromedriver\\chromedriver.exe");
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
+        login();
         driver.get("http://unit-530.labs.intellij.net:8080/issue/BDP-652#tab=Similar%20Issues");
         //todo: waiting
         try {
