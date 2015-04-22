@@ -22,6 +22,7 @@ public class Pages {
         ignElems.add("a.issue-toggler");
         ignElems.add("a.disabled");
         ignElems.add("input[type='hidden']");
+        ignElems.add("a.cf-value");
 
         Page tmpPage = new Page(page, url, termElems, ignElems);
 

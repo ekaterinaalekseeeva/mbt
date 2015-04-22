@@ -43,6 +43,131 @@ public class Parser {
 
     public static int graphCounter = 0;
 
+    public static String createSelector(WebElement element, String selectorType){
+        StringBuilder curSel = new StringBuilder();
+        String id = element.getAttribute("id");
+        String title = element.getAttribute("title");
+        String class_ = element.getAttribute("class");
+        String cn = element.getAttribute("cn");
+        String type = element.getAttribute("type");
+        int counter = 0;
+
+        if (selectorType.equals(Constants.xpath_selector)){
+            curSel.append("//");
+        }
+        curSel.append(element.getTagName());
+
+        if (id != null && !id.equals("")){
+            if (selectorType.equals(Constants.xpath_selector)){
+                curSel.append("[@id='");
+                curSel.append(id);
+                curSel.append("']");
+            } else {
+                curSel.append("[id='");
+                curSel.append(id);
+                curSel.append("']");
+            }
+        } else {
+            if (title != null && !title.equals("")){
+                counter++;
+                if (selectorType.equals(Constants.xpath_selector)){
+                    if (counter == 1){
+                        curSel.append("[");
+                    } else{
+                        curSel.append(" and ");
+                    }
+                    curSel.append("@title='");
+                    curSel.append(title);
+                    curSel.append("'");
+                } else {
+                    curSel.append("[title='");
+                    curSel.append(title);
+                    curSel.append("']");
+                }
+            }
+
+            if (class_ != null && !class_.equals("")){
+                counter++;
+                String[] c = class_.split(" ");
+                if (selectorType.equals(Constants.xpath_selector)){
+                    if (counter == 1){
+                        curSel.append("[");
+                    } else{
+                        curSel.append(" and ");
+                    }
+                    curSel.append("contains(@class, '");
+                    curSel.append(c[0]);
+                    curSel.append("')");
+                } else {
+                    curSel.append("[class*='");
+                    curSel.append(c[0]);
+                    curSel.append("']");
+                }
+            }
+            if (cn != null && !cn.equals("")){
+                counter++;
+                if (selectorType.equals(Constants.xpath_selector)){
+                    if (counter == 1){
+                        curSel.append("[");
+                    } else{
+                        curSel.append(" and ");
+                    }
+                    curSel.append("@cn='");
+                    curSel.append(cn);
+                    curSel.append("'");
+                } else {
+                    curSel.append("[cn='");
+                    curSel.append(cn);
+                    curSel.append("']");
+                }
+            }
+
+            if (element.getTagName().equals("a") && (id == null || id.equals("")) && counter == 0){
+                String href = element.getAttribute("pathname");
+                if (href != null && !href.equals("")){
+                    counter++;
+                    if (selectorType.equals(Constants.xpath_selector)){
+                        if (counter == 1){
+                            curSel.append("[");
+                        } else{
+                            curSel.append(" and ");
+                        }
+                        curSel.append("@href='");
+                        curSel.append(href);
+                        curSel.append("'");
+                    } else {
+                        curSel.append("[href='");
+                        curSel.append(href);
+                        curSel.append("']");
+                    }
+                }
+            }
+
+            if (type != null && !type.equals("")){
+                counter++;
+                if (selectorType.equals(Constants.xpath_selector)){
+                    if (counter == 1){
+                        curSel.append("[");
+                    } else{
+                        curSel.append(" and ");
+                    }
+                    curSel.append("@type='");
+                    curSel.append(type);
+                    curSel.append("']");
+                } else {
+                    curSel.append("[type='");
+                    curSel.append(type);
+                    curSel.append("']");
+                }
+            } else {
+                if (selectorType.equals(Constants.xpath_selector)){
+                    curSel.append("]");
+                }
+            }
+        }
+        return curSel.toString();
+    }
+
 //    Checks page in current state, seeks for necessary elements, adds new appeared elements
     public static void parsingElements(String selector, String action, Element parent, boolean ignored, boolean terminal, boolean specialCond, boolean condTerminal, SpecialConditionsElement spCondEl){
         List<WebElement> elems = driver.findElements(By.cssSelector(selector));
@@ -58,7 +183,14 @@ public class Parser {
                         tmpEl.setSpCondEl(spCondEl);
                     }
                     tmpEl.setCondTerminal(condTerminal);
-                    tmpEl.setSelector(selector);
+                    String xpathSelector = createSelector(elem, Constants.xpath_selector);
+                    driver.findElement(By.xpath(xpathSelector));
+                    WebElement par = driver.findElement(By.xpath(xpathSelector + "/.."));
+                    String parSelector = createSelector(par, Constants.css_selector);
+                    String fullSelector = createSelector(elem, Constants.css_selector);
+//                    System.out.println(xpathSelector);
+//                    System.out.println(parSelector + " " + fullSelector);
+                    tmpEl.setSelector(parSelector + " " + fullSelector);
                     tmpEl.setNumber(elems.indexOf(elem));
                     tmpEl.setAction(action);
                     tmpEl.setParent(parent);
@@ -136,32 +268,15 @@ public class Parser {
         }
     }
 
-// Marking terminal (or terminal in special conditions) and requiring special handling elements
-//    public static void markingElements () {
-//        WebElement element; // web element of Element object
-//        String tag; // web element tag name
-//        for (Element elem : foundElements){
-//            if (!elem.isMarked()){
-//                element = getElement(elem);
-//                tag = element.getTagName();
-//                if ((tag.equals("a") && element.getAttribute("href") != null)||(tag.equals("button") && element.getAttribute("id").contains("print"))){
-//                    elem.setTerminal(true);
-//                }
-//
-//    //            TODO: get list of terminal and special elements for current page (e.g. from external file)
-//
-//                elem.makeMarked();
-//            }
-//        }
-//    }
-
     public static WebElement getElement(Element e){
+//        System.out.println(e);
         try{
             e.getElement().getTagName();
             return e.getElement();
         } catch (StaleElementReferenceException exception){
-            List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
-            return elems.get(e.getNumber());
+//            List<WebElement> elems = driver.findElements(By.cssSelector(e.getSelector()));
+//            return elems.get(e.getNumber());
+            return  driver.findElement(By.cssSelector(e.getSelector()));
         }
     }
 
@@ -365,7 +480,7 @@ public class Parser {
 //        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWD\\chromedriver\\chromedriver.exe");
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
-        login();
+//        login();
         driver.get("http://unit-530.labs.intellij.net:8080/issue/BDP-652#tab=Similar%20Issues");
         //todo: waiting
         try {
@@ -374,28 +489,7 @@ public class Parser {
             Thread.currentThread().interrupt();
         }
 
-//        driver.findElement(By.cssSelector("a.arrow")).click();
-//        List<WebElement> elems = driver.findElements(By.cssSelector("div.contentWrapper > ul.comboboxList > li"));
-//        List<WebElement> elems2 = driver.findElements(By.cssSelector("ul.comboboxList > li"));
-//
-//        for (WebElement el: elems){
-//            System.out.println(el);
-//        }
-//
-//        for (WebElement el: elems2){
-//            System.out.println(el);
-//        }
-
         process(pageName, null, null, null);
-//        WebElement e1 = driver.findElement(By.cssSelector("div[id='ip_41_2596'] a[title*='Priority']"));
-//        WebElement ee1 = driver.findElement(By.cssSelector("a[href='/rest/agile/TestAgileShortcuts-0/sprint']"));
-//        driver.findElement(By.cssSelector("span[id='id_l.I.ic.it.si.si_41_2596.vi.ip.t.ct.toggleCommentsIco']")).click();
-//        WebElement e2 = driver.findElement(By.cssSelector("div[id='ip_41_2596'] a[title*='Priority']"));
-//        WebElement ee2 = driver.findElement(By.cssSelector("a[href='/rest/agile/TestAgileShortcuts-0/sprint']"));
-//        System.out.println(e1);
-//        System.out.println(e2);
-//        System.out.println(e1.equals(e2));
-//        System.out.println(ee1.equals(ee2));
 
         driver.close();
     }
