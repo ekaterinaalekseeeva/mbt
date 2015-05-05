@@ -16,6 +16,7 @@ public class Pages {
         ArrayList<String> termElems = new ArrayList<String>();
         termElems.add("button[cn*='goto']");
         termElems.add("div.contentWrapper > ul.comboboxList > li");
+        termElems.add("div[class*='ring-header__user-menu-item'] button[class*='ring-btn']");
 
         ArrayList<String> ignElems = new ArrayList<String>();
         ignElems.add("span.issue-toggler-ico");

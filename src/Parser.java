@@ -40,6 +40,7 @@ public class Parser {
 
     public static ArrayList<WebElement> foundWebElements = new ArrayList<WebElement>();
     public static ArrayList<Element> foundElements = new ArrayList<Element>();
+    public static ArrayList<String> selectors = new ArrayList<String>();
 
     public static int graphCounter = 0;
 
@@ -144,7 +145,7 @@ public class Parser {
                 }
             }
 
-            if (element.getTagName().equals("a") && (id == null || id.equals("")) && counter == 0) {
+            if (element.getTagName().equals("a") && counter == 0) {
                 String href = element.getAttribute("pathname");
                 if (href != null && !href.equals("")) {
                     counter++;
@@ -165,7 +166,7 @@ public class Parser {
                 }
             }
 
-            if (value != null && !value.equals("")){
+            if (value != null && !value.equals("") && !element.getTagName().equals("li")){
                 counter++;
                 if (selectorType.equals(Constants.xpath_selector)){
                     if (counter == 1){
@@ -215,37 +216,40 @@ public class Parser {
     public static void parsingElements(String selector, String action, Element parent, boolean ignored, boolean terminal, boolean specialCond, boolean condTerminal, SpecialConditionsElement spCondEl){
         List<WebElement> elems = driver.findElements(By.cssSelector(selector));
         for (WebElement elem : elems) {
+            System.out.println(selector);
             if (!foundWebElements.contains(elem)) {
                 foundWebElements.add(elem);
                 if (!ignored) {
-                    Element tmpEl = new Element();
-                    tmpEl.setElement(elem);
-                    tmpEl.setTerminal(terminal);
-                    tmpEl.setSpecialCond(specialCond);
-                    if (specialCond){
-                        tmpEl.setSpCondEl(spCondEl);
-                    }
-                    tmpEl.setCondTerminal(condTerminal);
                     String xpathSelector = createSelector(elem, Constants.xpath_selector);
-//                    System.out.println(xpathSelector);
-                    driver.findElement(By.xpath(xpathSelector));
                     WebElement par = driver.findElement(By.xpath(xpathSelector + "/.."));
                     String parSelector = createSelector(par, Constants.css_selector);
-                    String fullSelector = createSelector(elem, Constants.css_selector);
-//                    System.out.println(parSelector + " " + fullSelector);
-                    tmpEl.setSelector(parSelector + " " + fullSelector);
-                    tmpEl.setNumber(elems.indexOf(elem));
-                    tmpEl.setAction(action);
-                    tmpEl.setParent(parent);
-                    foundElements.add(tmpEl);
+                    String cssSelector = createSelector(elem, Constants.css_selector);
+                    System.out.println(parSelector + " " + cssSelector);
+                    if (!selectors.contains(parSelector + " " + cssSelector)) {
+                        Element tmpEl = new Element();
+                        tmpEl.setElement(elem);
+                        tmpEl.setTerminal(terminal);
+                        tmpEl.setSpecialCond(specialCond);
+                        if (specialCond){
+                            tmpEl.setSpCondEl(spCondEl);
+                        }
+                        tmpEl.setCondTerminal(condTerminal);
+                        tmpEl.setSelector(parSelector + " " + cssSelector);
+                        tmpEl.setNumber(elems.indexOf(elem));
+                        tmpEl.setAction(action);
+                        tmpEl.setParent(parent);
+                        foundElements.add(tmpEl);
+                        selectors.add(parSelector + " " + cssSelector);
+                    }
                 }
             }
+            System.out.println();
         }
     }
 
 // Calls parsing method for different types of elements
     public static void parsingPage(String pageName, Element parent, String area, ArrayList<SpecialConditionsElement.AllowedSelector> selectors){
-        System.out.println("parsingPage entered!");
+//        System.out.println("parsingPage entered!");
         ArrayList<String> terminal = new ArrayList<String>();
         ArrayList<String> ignored = new ArrayList<String>();
         ArrayList<SpecialConditionsElement> specialCond = new ArrayList<SpecialConditionsElement>();
@@ -266,7 +270,7 @@ public class Parser {
                 selector = area + " " + s;
             }
 
-            System.out.println(selector);
+//            System.out.println(selector);
             parsingElements(selector, Constants.action_click, parent, true, false, false, false, null);
         }
 
@@ -277,7 +281,7 @@ public class Parser {
                 selector = area + " " + s;
             }
 
-            System.out.println(selector);
+//            System.out.println(selector);
             parsingElements(selector, Constants.action_click, parent, false, true, false, false, null);
         }
 
@@ -288,17 +292,27 @@ public class Parser {
                 selector = area + " " + el.selector;
             }
 
-            System.out.println(selector);
+//            System.out.println(selector);
             parsingElements(selector, Constants.action_click, parent, false, false, true, false, el);
         }
 
         if (selectors == null) {
             for (String s : clickableElements) {
-                parsingElements(s, Constants.action_click, parent, false, false, false, false, null);
+                if (area == null){
+                    selector = s;
+                } else {
+                    selector = area + " " + s;
+                }
+                parsingElements(selector, Constants.action_click, parent, false, false, false, false, null);
             }
 
             for (String s : writableElements) {
-                parsingElements(s, Constants.action_write, parent, false, false, false, false, null);
+                if (area == null){
+                    selector = s;
+                } else {
+                    selector = area + " " + s;
+                }
+                parsingElements(selector, Constants.action_write, parent, false, false, false, false, null);
             }
         } else {
             for (SpecialConditionsElement.AllowedSelector s : selectors){
@@ -420,29 +434,28 @@ public class Parser {
         drawGraph();
 
 //        for (Element elem : foundElements) {
-        for (int i = numberOfElements; i < foundElements.size(); i++) {
+        int firstIndex = (numberOfElements == 0) ? 0 : numberOfElements-1;
+        for (int i = firstIndex; i < foundElements.size(); i++) {
             // Logging
             Element elem = foundElements.get(i);
             System.out.println("---------------------------------------------------------------------");
             System.out.println("New parsing:");
-            System.out.println(elem);
-            if (elem.getParent() == null) {
-                System.out.print(elem + " " + getElement(elem).getTagName() + " " + getElement(elem).getAttribute("class") + " ");
-                System.out.println(getElement(elem).getAttribute("id") + " Is terminal: " + elem.getTerminal() + " Is displayed: " + getElement(elem).isDisplayed());
-            }
+            System.out.println(elem.getSelector());
+//            if (elem.getParent() == null) {
+//                System.out.print(elem + " " + getElement(elem).getTagName() + " " + getElement(elem).getAttribute("class") + " ");
+//                System.out.println(getElement(elem).getAttribute("id") + " Is terminal: " + elem.getTerminal() + " Is displayed: " + getElement(elem).isDisplayed());
+//            }
 
             // Processing of non-terminal common elements
             if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && getElement(elem).isDisplayed() && elem != parent) {
                 System.out.println("------------- IF");
+                System.out.println(elem.getSelector());
                 if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
                     //                        driver.navigate().refresh();
                     reproduceElementAppearance(elem);
                 }
 
-                System.out.println(getElement(elem).getTagName());
-                                System.out.print(getElement(elem).getTagName() + " " + getElement(elem).getText() + " " + getElement(elem).getAttribute("id") + " ");
-                                System.out.print(getElement(elem).getAttribute("title") + " " + getElement(elem).getAttribute("class") + " " + getElement(elem).getAttribute("cn"));
-                                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
+                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
 
                 if (elem.getAction().equals(Constants.action_click)) {
                     getElement(elem).click();
@@ -456,9 +469,9 @@ public class Parser {
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
-                System.out.println("Enter recursion");
+//                System.out.println("Enter recursion");
                 process(pageName, elem, null, null);
-                System.out.println("Exit recursion");
+//                System.out.println("Exit recursion");
                 //                    driver.navigate().refresh();
                 drawGraph();
             }
@@ -480,9 +493,9 @@ public class Parser {
                         Thread.currentThread().interrupt();
                     }
 
-                    System.out.println("Enter recursion");
+//                    System.out.println("Enter recursion");
                     process(pageName, elem, elem.getSpCondEl().area, null);
-                    System.out.println("Exit recursion");
+//                    System.out.println("Exit recursion");
                 } else if (elem.getSpCondEl().type.equals(Constants.type_search_elements)){
                     getElement(elem).click();
 
@@ -493,9 +506,9 @@ public class Parser {
                         Thread.currentThread().interrupt();
                     }
 
-                    System.out.println("Enter recursion");
+//                    System.out.println("Enter recursion");
                     process(pageName, elem, null, elem.getSpCondEl().allowedSelectors);
-                    System.out.println("Exit recursion");
+//                    System.out.println("Exit recursion");
                 } else if (elem.getSpCondEl().type.equals(Constants.type_write)){
 //                    getElement(elem).sendKeys(elem.getSpCondEl().allowedWrite);
                 } else {
