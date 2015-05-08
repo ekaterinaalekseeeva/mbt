@@ -27,6 +27,7 @@ public class Pages {
         ignElems.add("input[type='hidden']");
         ignElems.add("a.cf-value");
         ignElems.add("button[id='id_l.I.tb.c.ctms.afm.addFileMenu']");
+        ignElems.add("button[id='id_l.I.ic.it.c.ac.addFileMenu']");
 //        TODO make it cond-terminal
         ignElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.deleteIssueLink']");
 
