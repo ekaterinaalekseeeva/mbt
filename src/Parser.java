@@ -44,6 +44,7 @@ public class Parser {
 
     public static int graphCounter = 0;
 
+//    Generate unique selector for given element
     public static String createSelector(WebElement element, String selectorType){
         StringBuilder curSel = new StringBuilder();
         String id = element.getAttribute("id");
@@ -52,7 +53,7 @@ public class Parser {
         String cn = element.getAttribute("cn");
         String name = element.getAttribute("name");
         String value = element.getAttribute("value");
-        String type = element.getAttribute("type");
+//        String type = element.getAttribute("type");
         int counter = 0;
 
         if (selectorType.equals(Constants.xpath_selector)){
@@ -60,6 +61,7 @@ public class Parser {
         }
         curSel.append(element.getTagName());
 
+//        If element has id, it is a ready unique selector
         if (id != null && !id.equals("")){
             if (selectorType.equals(Constants.xpath_selector)){
                 curSel.append("[@id='");
@@ -70,6 +72,7 @@ public class Parser {
                 curSel.append(id);
                 curSel.append("']");
             }
+//            else try to find more attributes
         } else {
             if (title != null && !title.equals("")){
                 counter++;
@@ -89,9 +92,16 @@ public class Parser {
                 }
             }
 
+//            class often contains several values, so we take first of them
             if (class_ != null && !class_.equals("")){
                 counter++;
                 String[] c = class_.split(" ");
+                for (String i : c){
+                    if (!i.equals("")){
+                        class_ = i;
+                        break;
+                    }
+                }
 //                System.out.println("Class: " + class_);
                 if (selectorType.equals(Constants.xpath_selector)){
                     if (counter == 1){
@@ -100,11 +110,11 @@ public class Parser {
                         curSel.append(" and ");
                     }
                     curSel.append("contains(@class, '");
-                    curSel.append(c[0]);
+                    curSel.append(class_);
                     curSel.append("')");
                 } else {
                     curSel.append("[class*='");
-                    curSel.append(c[0]);
+                    curSel.append(class_);
                     curSel.append("']");
                 }
             }
@@ -145,8 +155,10 @@ public class Parser {
                 }
             }
 
+//            if anchor element doesn't have any attributes except href, try to get it by href or pathname
             if (element.getTagName().equals("a") && counter == 0) {
-                String href = element.getAttribute("pathname");
+                String href = element.getAttribute("href");
+                String pathname = element.getAttribute("pathname");
                 if (href != null && !href.equals("")) {
                     counter++;
                     if (selectorType.equals(Constants.xpath_selector)) {
@@ -156,10 +168,14 @@ public class Parser {
                             curSel.append(" and ");
                         }
                         curSel.append("@href='");
+                        curSel.append(pathname);
+                        curSel.append("' or @href='");
                         curSel.append(href);
                         curSel.append("'");
                     } else {
                         curSel.append("[href='");
+                        curSel.append(pathname);
+                        curSel.append("'],[href='");
                         curSel.append(href);
                         curSel.append("']");
                     }
@@ -217,7 +233,7 @@ public class Parser {
         List<WebElement> elems = driver.findElements(By.cssSelector(selector));
         for (WebElement elem : elems) {
             System.out.println(selector);
-            if (!foundWebElements.contains(elem)) {
+            if (!foundWebElements.contains(elem) && elem.isDisplayed()) {
                 foundWebElements.add(elem);
                 if (!ignored) {
                     String xpathSelector = createSelector(elem, Constants.xpath_selector);
@@ -385,15 +401,16 @@ public class Parser {
                 curStr.delete(0, curStr.length());
                 curStr.append(e);
                 curStr.append(" [label=\"");
-                curStr.append(getElement(e).getTagName());
-                curStr.append(" ");
-                curStr.append(getElement(e).getText());
-                curStr.append(" ");
-                curStr.append(getElement(e).getAttribute("id"));
-                curStr.append(" ");
-                curStr.append(getElement(e).getAttribute("title"));
-                curStr.append(getElement(e).getAttribute("class"));
-                curStr.append(getElement(e).getAttribute("cn"));
+//                curStr.append(getElement(e).getTagName());
+//                curStr.append(" ");
+//                curStr.append(getElement(e).getText());
+//                curStr.append(" ");
+//                curStr.append(getElement(e).getAttribute("id"));
+//                curStr.append(" ");
+//                curStr.append(getElement(e).getAttribute("title"));
+//                curStr.append(getElement(e).getAttribute("class"));
+//                curStr.append(getElement(e).getAttribute("cn"));
+                curStr.append(e.getSelector());
                 curStr.append("\"];");
                 resStr = curStr.toString();
                 resStr = resStr.replaceAll("\n", "");
@@ -476,7 +493,7 @@ public class Parser {
                 drawGraph();
             }
 
-
+//          processing non-terminal special-conditions elements
             if (elem.getSpecialCond() && !elem.getTerminal() && !elem.getCondTerminal() && getElement(elem).isDisplayed() && elem != parent) {
                 if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
 //                        driver.navigate().refresh();
@@ -536,8 +553,8 @@ public class Parser {
 //        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWD\\chromedriver\\chromedriver.exe");
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
-//        login();
-        driver.get("http://unit-530.labs.intellij.net:8080/issue/BDP-652#tab=Similar%20Issues");
+        login();
+        driver.get("http://unit-530.labs.intellij.net:8080/issue/BDP-652");
         //todo: waiting
         try {
             Thread.sleep(5000);
@@ -546,8 +563,9 @@ public class Parser {
         }
 
         process(pageName, null, null, null);
-//        WebElement e = driver.findElement(By.xpath("//button[contains(@class, 'ring-btn') and @type='submit']"));
-//        WebElement e = driver.findElement(By.cssSelector("input[class~='empty'][type='text']"));
+//        WebElement e = driver.findElement(By.xpath("//a[@href='/display/YTD6/Using+Image+Editor']"));
+//        WebElement e = driver.findElement(By.cssSelector("a[href='javascript:void(0)']"));
+//        System.out.println(e.getAttribute("href"));
 //        List<WebElement> elems = driver.findElements(By.cssSelector("input"));
 //        for (WebElement elem : elems) {
 //            System.out.println(createSelector(elem, Constants.xpath_selector));

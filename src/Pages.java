@@ -17,6 +17,8 @@ public class Pages {
         termElems.add("button[cn*='goto']");
         termElems.add("div.contentWrapper > ul.comboboxList > li");
         termElems.add("div[class*='ring-header__user-menu-item'] button[class*='ring-btn']");
+        termElems.add("div[id='ring-header-youtrack-create'] button[class*='ring-btn']");
+        termElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.editIssueLink']");
 
         ArrayList<String> ignElems = new ArrayList<String>();
         ignElems.add("span.issue-toggler-ico");
@@ -24,6 +26,9 @@ public class Pages {
         ignElems.add("a.disabled");
         ignElems.add("input[type='hidden']");
         ignElems.add("a.cf-value");
+        ignElems.add("button[id='id_l.I.tb.c.ctms.afm.addFileMenu']");
+//        TODO make it cond-terminal
+        ignElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.deleteIssueLink']");
 
         Page tmpPage = new Page(page, url, termElems, ignElems);
 
