@@ -27,7 +27,12 @@ public class Pages {
         ignElems.add("input[type='hidden']");
         ignElems.add("a.cf-value");
         ignElems.add("button[id='id_l.I.tb.c.ctms.afm.addFileMenu']");
+        ignElems.add("button[id='id_l.I.tb.c.ctms.afm.addFileMenu'] span.ring-font-icon");
+        ignElems.add("button[id='id_l.I.tb.c.ctms.afm.addFileMenu'] span.icon-paper-clip");
         ignElems.add("button[id='id_l.I.ic.it.c.ac.addFileMenu']");
+        ignElems.add("button[id='id_l.I.ic.it.c.ac.addFileMenu'] span.ring-font-icon");
+        ignElems.add("button[id='id_l.I.ic.it.c.ac.addFileMenu'] span.icon-paper-clip2");
+        ignElems.add("span.sb-issue-edit-attach-btn-l");
 //        TODO make it cond-terminal
         ignElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.deleteIssueLink']");
 
