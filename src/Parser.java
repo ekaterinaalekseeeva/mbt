@@ -399,6 +399,10 @@ public class Parser {
             String resStr;
             for (Element e: foundElements) {
                 curStr.delete(0, curStr.length());
+                if (!e.getUrl().equals("")){
+                    curStr.append(e.getUrl());
+                    curStr.append("[shape=box] -- ");
+                }
                 curStr.append(e);
                 curStr.append(" [label=\"");
 //                curStr.append(getElement(e).getTagName());
@@ -464,11 +468,12 @@ public class Parser {
 //            }
 
             // Processing of non-terminal common elements
-            if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && getElement(elem).isDisplayed() && elem != parent) {
+            if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && elem != parent) {
                 System.out.println("------------- IF");
                 System.out.println(elem.getSelector());
+                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
                 if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
-                    //                        driver.navigate().refresh();
+                    driver.navigate().refresh();
                     reproduceElementAppearance(elem);
                 }
 
@@ -489,14 +494,14 @@ public class Parser {
 //                System.out.println("Enter recursion");
                 process(pageName, elem, null, null);
 //                System.out.println("Exit recursion");
-                //                    driver.navigate().refresh();
+                driver.navigate().refresh();
                 drawGraph();
             }
 
 //          processing non-terminal special-conditions elements
-            if (elem.getSpecialCond() && !elem.getTerminal() && !elem.getCondTerminal() && getElement(elem).isDisplayed() && elem != parent) {
+            else if (elem.getSpecialCond() && !elem.getTerminal() && !elem.getCondTerminal() && elem != parent) {
                 if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
-//                        driver.navigate().refresh();
+                        driver.navigate().refresh();
                     reproduceElementAppearance(elem);
                 }
 
@@ -531,9 +536,40 @@ public class Parser {
                 } else {
                     System.out.println("Unknown type");
                 }
+                driver.navigate().refresh();
+                drawGraph();
             }
 
             // todo: terminal processing
+            else if (!elem.getSpecialCond() && (elem.getTerminal() || elem.getCondTerminal()) && elem != parent){
+                if (elem.getCondTerminal()){
+//                    do conditions
+                }
+
+//                if (elem.getAction().equals(Constants.action_click)) {
+                getElement(elem).click();
+//                }
+                //todo: wait until page is updated
+                try {
+                    Thread.sleep(1500);                 //1000 milliseconds is one second.
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+
+                String url = driver.getCurrentUrl();
+                elem.setUrl(url);
+                driver.navigate().back();
+
+                //todo: wait until page is updated
+                try {
+                    Thread.sleep(1500);                 //1000 milliseconds is one second.
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+
+                driver.navigate().refresh();
+                drawGraph();
+            }
         }
     }
 

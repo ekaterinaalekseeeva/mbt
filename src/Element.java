@@ -14,6 +14,7 @@ public class Element {
     private Element parent;
     private boolean marked;
     private SpecialConditionsElement spCondEl;
+    private String url;
 
 //    public Element(WebElement el, boolean term, boolean cond_term, boolean spec_cond, String act){
 //        element = el;
@@ -43,6 +44,7 @@ public class Element {
         special_cond = false;
         action = "";
         marked = false;
+        url = "";
 //        name = element.getTagName() + " " + element.getAttribute("title") + " " + element.getAttribute("id") + " " + element.getLocation();
     }
 
@@ -137,5 +139,13 @@ public class Element {
 
     public SpecialConditionsElement getSpCondEl(){
         return spCondEl;
+    }
+
+    public void setUrl(String url){
+        this.url = url;
+    }
+
+    public String getUrl(){
+        return url;
     }
 }
