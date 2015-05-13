@@ -18,7 +18,7 @@ public class Pages {
         termElems.add("div.contentWrapper > ul.comboboxList > li");
         termElems.add("div[class*='ring-header__user-menu-item'] button[class*='ring-btn']");
         termElems.add("div[id='ring-header-youtrack-create'] button[class*='ring-btn']");
-        termElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.editIssueLink']");
+//        termElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.editIssueLink']");
 
         ArrayList<String> ignElems = new ArrayList<String>();
         ignElems.add("span.issue-toggler-ico");
@@ -34,7 +34,9 @@ public class Pages {
         ignElems.add("button[id='id_l.I.ic.it.c.ac.addFileMenu'] span.icon-paper-clip2");
         ignElems.add("span.sb-issue-edit-attach-btn-l");
         ignElems.add("span[label='Log Out']");
+        ignElems.add("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']");
         ignElems.add("a[id*='deleteComment']");
+        ignElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.editIssueLink']");
 //        TODO make it cond-terminal
         ignElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.deleteIssueLink']");
 

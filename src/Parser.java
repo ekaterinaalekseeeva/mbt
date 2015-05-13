@@ -237,10 +237,12 @@ public class Parser {
                 if (!ignored) {
                     String xpathSelector = createSelector(elem, Constants.xpath_selector);
                     WebElement par = driver.findElement(By.xpath(xpathSelector + "/.."));
+                    WebElement parpar = driver.findElement(By.xpath(xpathSelector + "/../.."));
                     String parSelector = createSelector(par, Constants.css_selector);
+                    String parparSelector = createSelector(parpar, Constants.css_selector);
                     String cssSelector = createSelector(elem, Constants.css_selector);
-                    System.out.println(parSelector + " " + cssSelector);
-                    if (!selectors.contains(parSelector + " " + cssSelector)) {
+                    System.out.println(parparSelector + " " + parSelector + " " + cssSelector);
+                    if (!selectors.contains(parparSelector + " " + parSelector + " " + cssSelector)) {
                         Element tmpEl = new Element();
                         tmpEl.setElement(elem);
                         tmpEl.setTerminal(terminal);
@@ -249,12 +251,12 @@ public class Parser {
                             tmpEl.setSpCondEl(spCondEl);
                         }
                         tmpEl.setCondTerminal(condTerminal);
-                        tmpEl.setSelector(parSelector + " " + cssSelector);
+                        tmpEl.setSelector(parparSelector + " " + parSelector + " " + cssSelector);
                         tmpEl.setNumber(elems.indexOf(elem));
                         tmpEl.setAction(action);
                         tmpEl.setParent(parent);
                         foundElements.add(tmpEl);
-                        selectors.add(parSelector + " " + cssSelector);
+                        selectors.add(parparSelector + " " + parSelector + " " + cssSelector);
                         System.out.println("added");
                     }
                 }
@@ -621,8 +623,8 @@ public class Parser {
         }
 
         process(pageName, null, null, null);
-//        WebElement e = driver.findElement(By.xpath("//a[@href='/display/YTD6/Using+Image+Editor']"));
-//        WebElement e = driver.findElement(By.cssSelector("a[href='javascript:void(0)']"));
+//        WebElement e = driver.findElement(By.xpath("//div[@class='combobox']/../.."));
+//        WebElement e = driver.findElement(By.cssSelector("div[class='combobox'][class='selectProject']"));
 //        System.out.println(e.getAttribute("href"));
 //        List<WebElement> elems = driver.findElements(By.cssSelector("input"));
 //        for (WebElement elem : elems) {
