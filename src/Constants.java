@@ -7,6 +7,8 @@ public interface Constants {
     String type_write = "write";
     String type_search_elements = "search elements";
     String type_search_area = "search area";
+    String type_alert_accept = "alert accept";
+    String type_alert_decline = "alert decline";
 
     String xpath_selector = "xpath";
     String css_selector = "css";

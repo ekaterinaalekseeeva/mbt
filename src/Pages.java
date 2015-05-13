@@ -33,6 +33,8 @@ public class Pages {
         ignElems.add("button[id='id_l.I.ic.it.c.ac.addFileMenu'] span.ring-font-icon");
         ignElems.add("button[id='id_l.I.ic.it.c.ac.addFileMenu'] span.icon-paper-clip2");
         ignElems.add("span.sb-issue-edit-attach-btn-l");
+        ignElems.add("span[label='Log Out']");
+        ignElems.add("a[id*='deleteComment']");
 //        TODO make it cond-terminal
         ignElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.deleteIssueLink']");
 
@@ -44,6 +46,11 @@ public class Pages {
         el.type = "search area";
         el.area = "div.issue-comments";
         tmpPage.specialConditionsElements.add(el);
+//        el = new SpecialConditionsElement();
+//        el.selector = "a[id*='deleteComment']";
+//        el.action = "click";
+//        el.type = "alert accept";
+//        tmpPage.specialConditionsElements.add(el);
 
         System.out.println("new page added:");
         System.out.println(tmpPage.name);

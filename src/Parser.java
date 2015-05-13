@@ -1,7 +1,4 @@
-import org.openqa.selenium.By;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
@@ -15,6 +12,8 @@ import java.util.List;
  * Created by Ekaterina.Alekseeva on 11-Mar-15.
  */
 public class Parser {
+    private static String baseURL;
+
     private static WebDriver driver = new FirefoxDriver();
 //    private static WebDriver driver;
 
@@ -256,6 +255,7 @@ public class Parser {
                         tmpEl.setParent(parent);
                         foundElements.add(tmpEl);
                         selectors.add(parSelector + " " + cssSelector);
+                        System.out.println("added");
                     }
                 }
             }
@@ -290,17 +290,6 @@ public class Parser {
             parsingElements(selector, Constants.action_click, parent, true, false, false, false, null);
         }
 
-        for (String s: terminal){
-            if (area == null){
-                selector = s;
-            } else {
-                selector = area + " " + s;
-            }
-
-//            System.out.println(selector);
-            parsingElements(selector, Constants.action_click, parent, false, true, false, false, null);
-        }
-
         for (SpecialConditionsElement el: specialCond){
             if (area == null){
                 selector = el.selector;
@@ -310,6 +299,17 @@ public class Parser {
 
 //            System.out.println(selector);
             parsingElements(selector, Constants.action_click, parent, false, false, true, false, el);
+        }
+
+        for (String s: terminal){
+            if (area == null){
+                selector = s;
+            } else {
+                selector = area + " " + s;
+            }
+
+//            System.out.println(selector);
+            parsingElements(selector, Constants.action_click, parent, false, true, false, false, null);
         }
 
         if (selectors == null) {
@@ -533,7 +533,26 @@ public class Parser {
 //                    System.out.println("Exit recursion");
                 } else if (elem.getSpCondEl().type.equals(Constants.type_write)){
 //                    getElement(elem).sendKeys(elem.getSpCondEl().allowedWrite);
-                } else {
+                } else if (elem.getSpCondEl().type.equals(Constants.type_alert_accept)) {
+                    try {
+                        getElement(elem).click();
+                    } catch (UnhandledAlertException e){
+                        Alert alert = driver.switchTo().alert();
+                        alert.accept();
+                    }
+
+                    process(pageName, elem, null, null);
+                } else if (elem.getSpCondEl().type.equals(Constants.type_alert_decline)) {
+                    try {
+                        getElement(elem).click();
+                    } catch (UnhandledAlertException e){
+                        Alert alert = driver.switchTo().alert();
+                        alert.dismiss();
+                    }
+
+                    process(pageName, elem, null, null);
+                } else
+                {
                     System.out.println("Unknown type");
                 }
                 driver.navigate().refresh();
@@ -543,31 +562,33 @@ public class Parser {
             // todo: terminal processing
             else if (!elem.getSpecialCond() && (elem.getTerminal() || elem.getCondTerminal()) && elem != parent){
                 if (elem.getCondTerminal()){
-//                    do conditions
+//                    todo do conditions
                 }
-
 //                if (elem.getAction().equals(Constants.action_click)) {
                 getElement(elem).click();
 //                }
                 //todo: wait until page is updated
                 try {
-                    Thread.sleep(1500);                 //1000 milliseconds is one second.
+                    Thread.sleep(5000);                 //1000 milliseconds is one second.
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
 
                 String url = driver.getCurrentUrl();
-                elem.setUrl(url);
-                driver.navigate().back();
+                System.out.println("URL" + url);
+                if (!url.equals(baseURL)) {
+                    elem.setUrl(url);
+                    driver.get(baseURL);
+                }
 
                 //todo: wait until page is updated
                 try {
-                    Thread.sleep(1500);                 //1000 milliseconds is one second.
+                    Thread.sleep(5000);                 //1000 milliseconds is one second.
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
 
-                driver.navigate().refresh();
+//                driver.navigate().refresh();
                 drawGraph();
             }
         }
@@ -589,8 +610,9 @@ public class Parser {
 //        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWD\\chromedriver\\chromedriver.exe");
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
+        baseURL = "http://unit-530.labs.intellij.net:8080/issue/BDP-652";
         login();
-        driver.get("http://unit-530.labs.intellij.net:8080/issue/BDP-652");
+        driver.get(baseURL);
         //todo: waiting
         try {
             Thread.sleep(5000);
