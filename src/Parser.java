@@ -232,9 +232,9 @@ public class Parser {
         List<WebElement> elems = driver.findElements(By.cssSelector(selector));
         for (WebElement elem : elems) {
             System.out.println(selector);
-            if (!foundWebElements.contains(elem) && elem.isDisplayed()) {
+            if (!foundWebElements.contains(elem)) {
                 foundWebElements.add(elem);
-                if (!ignored) {
+                if (!ignored && elem.isDisplayed()) {
                     String xpathSelector = createSelector(elem, Constants.xpath_selector);
                     WebElement par = driver.findElement(By.xpath(xpathSelector + "/.."));
                     WebElement parpar = driver.findElement(By.xpath(xpathSelector + "/../.."));
