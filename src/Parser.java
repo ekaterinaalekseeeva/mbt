@@ -500,24 +500,38 @@ public class Parser {
 //                System.out.println(getElement(elem).getAttribute("id") + " Is terminal: " + elem.getTerminal() + " Is displayed: " + getElement(elem).isDisplayed());
 //            }
 
+            try {
+                if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
+                    driver.navigate().refresh();
+                    reproduceElementAppearance(elem);
+                }
+            } catch (NoSuchElementException e){
+                if (elem.getParent() != null) {
+                    driver.navigate().refresh();
+                    reproduceElementAppearance(elem);
+                }
+            }
+
+            System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
+
             // Processing of non-terminal common elements
             if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && elem != parent) {
                 System.out.println("------------- common");
                 System.out.println(elem.getSelector());
-                try {
-                    System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
-                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
-                        driver.navigate().refresh();
-                        reproduceElementAppearance(elem);
-                    }
-                } catch (NoSuchElementException e){
-                    if (elem.getParent() != null) {
-                        driver.navigate().refresh();
-                        reproduceElementAppearance(elem);
-                    }
-                }
-
-                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
+//                try {
+//                    System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
+//                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
+//                        driver.navigate().refresh();
+//                        reproduceElementAppearance(elem);
+//                    }
+//                } catch (NoSuchElementException e){
+//                    if (elem.getParent() != null) {
+//                        driver.navigate().refresh();
+//                        reproduceElementAppearance(elem);
+//                    }
+//                }
+//
+//                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
 
                 if (elem.getAction().equals(Constants.action_click)) {
                     getElement(elem).click();
@@ -542,17 +556,17 @@ public class Parser {
             else if (elem.getSpecialCond() && !elem.getTerminal() && !elem.getCondTerminal() && elem != parent) {
                 System.out.println("------------- special-condition");
                 System.out.println(elem.getSelector());
-                try {
-                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
-                        driver.navigate().refresh();
-                        reproduceElementAppearance(elem);
-                    }
-                } catch (NoSuchElementException e){
-                    if (elem.getParent() != null) {
-                        driver.navigate().refresh();
-                        reproduceElementAppearance(elem);
-                    }
-                }
+//                try {
+//                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
+//                        driver.navigate().refresh();
+//                        reproduceElementAppearance(elem);
+//                    }
+//                } catch (NoSuchElementException e){
+//                    if (elem.getParent() != null) {
+//                        driver.navigate().refresh();
+//                        reproduceElementAppearance(elem);
+//                    }
+//                }
 
                 if (elem.getSpCondEl().type.equals(Constants.type_search_area)){
                     getElement(elem).click();
@@ -567,6 +581,7 @@ public class Parser {
 //                    System.out.println("Enter recursion");
                     process(pageName, elem, elem.getSpCondEl().area, null);
 //                    System.out.println("Exit recursion");
+
                 } else if (elem.getSpCondEl().type.equals(Constants.type_search_elements)){
                     getElement(elem).click();
 
@@ -580,8 +595,11 @@ public class Parser {
 //                    System.out.println("Enter recursion");
                     process(pageName, elem, null, elem.getSpCondEl().allowedSelectors);
 //                    System.out.println("Exit recursion");
+
                 } else if (elem.getSpCondEl().type.equals(Constants.type_write)){
-//                    getElement(elem).sendKeys(elem.getSpCondEl().allowedWrite);
+//                    todo: random choose index from array
+                    getElement(elem).sendKeys(elem.getSpCondEl().allowedWrite.get(0));
+
                 } else if (elem.getSpCondEl().type.equals(Constants.type_alert_accept)) {
                     try {
                         getElement(elem).click();
@@ -591,6 +609,7 @@ public class Parser {
                     }
 
                     process(pageName, elem, null, null);
+
                 } else if (elem.getSpCondEl().type.equals(Constants.type_alert_decline)) {
                     try {
                         getElement(elem).click();
@@ -600,37 +619,37 @@ public class Parser {
                     }
 
                     process(pageName, elem, null, null);
-                } else
-                {
+
+                } else {
                     System.out.println("Unknown type");
                 }
+
                 driver.navigate().refresh();
                 drawGraph();
             }
 
-            // todo: terminal processing
+            // Processing terminal elements
             else if (!elem.getSpecialCond() && (elem.getTerminal() || elem.getCondTerminal()) && elem != parent){
                 System.out.println("------------- terminal");
                 System.out.println(elem.getSelector());
-                try {
-                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
-                        driver.navigate().refresh();
-                        reproduceElementAppearance(elem);
-                    }
-                } catch (NoSuchElementException e){
-                    if (elem.getParent() != null) {
-                        driver.navigate().refresh();
-                        reproduceElementAppearance(elem);
-                    }
-                }
-
-
+//                try {
+//                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
+//                        driver.navigate().refresh();
+//                        reproduceElementAppearance(elem);
+//                    }
+//                } catch (NoSuchElementException e){
+//                    if (elem.getParent() != null) {
+//                        driver.navigate().refresh();
+//                        reproduceElementAppearance(elem);
+//                    }
+//                }
                 if (elem.getCondTerminal()){
 //                    todo: do conditions
                 }
 //                if (elem.getAction().equals(Constants.action_click)) {
                 getElement(elem).click();
 //                }
+
                 //todo: wait until page is updated
                 try {
                     Thread.sleep(5000);                 //1000 milliseconds is one second.
@@ -652,7 +671,6 @@ public class Parser {
                     Thread.currentThread().interrupt();
                 }
 
-//                driver.navigate().refresh();
                 drawGraph();
             }
         }
