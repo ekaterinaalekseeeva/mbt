@@ -42,6 +42,7 @@ public class Parser {
     public static ArrayList<String> selectors = new ArrayList<String>();
 
     public static int graphCounter = 0;
+    public static int URLCounter;
 
 //    Generate unique selector for given element
     public static String createSelector(WebElement element, String selectorType){
@@ -75,19 +76,38 @@ public class Parser {
         } else {
             if (title != null && !title.equals("")){
                 counter++;
+                boolean part = false;
+                if (element.getTagName().equals("a") && class_.contains("attribute")){
+                    title = title.split(":")[0];
+                    System.out.println(title);
+                    part = true;
+                }
                 if (selectorType.equals(Constants.xpath_selector)){
                     if (counter == 1){
                         curSel.append("[");
                     } else{
                         curSel.append(" and ");
                     }
-                    curSel.append("@title='");
-                    curSel.append(title);
-                    curSel.append("'");
+                    if (part){
+                        curSel.append("contains(@title, '");
+                        curSel.append(title);
+                        curSel.append("')");
+                    } else {
+                        curSel.append("@title='");
+                        curSel.append(title);
+                        curSel.append("'");
+                    }
+
                 } else {
-                    curSel.append("[title='");
-                    curSel.append(title);
-                    curSel.append("']");
+                    if (part){
+                        curSel.append("[title*='");
+                        curSel.append(title);
+                        curSel.append("']");
+                    } else {
+                        curSel.append("[title='");
+                        curSel.append(title);
+                        curSel.append("']");
+                    }
                 }
             }
 
@@ -242,7 +262,10 @@ public class Parser {
                     String parparSelector = createSelector(parpar, Constants.css_selector);
                     String cssSelector = createSelector(elem, Constants.css_selector);
                     System.out.println(parparSelector + " " + parSelector + " " + cssSelector);
-                    if (!selectors.contains(parparSelector + " " + parSelector + " " + cssSelector)) {
+//                    if ((parparSelector + " " + parSelector + " " + cssSelector).equals("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']")){
+//                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//                    }
+                    if (!selectors.contains(parparSelector + " " + parSelector + " " + cssSelector) && !(parparSelector + " " + parSelector + " " + cssSelector).equals("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']")) {
                         Element tmpEl = new Element();
                         tmpEl.setElement(elem);
                         tmpEl.setTerminal(terminal);
@@ -393,6 +416,7 @@ public class Parser {
 
     public static void drawGraph(){
         System.out.println("Drawing graph " + graphCounter);
+        URLCounter = 0;
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter("GUIgraph"+graphCounter));
 
@@ -402,8 +426,15 @@ public class Parser {
             for (Element e: foundElements) {
                 curStr.delete(0, curStr.length());
                 if (!e.getUrl().equals("")){
+                    curStr.append("URL");
+                    curStr.append(URLCounter);
+                    URLCounter++;
+                    curStr.append(" [label=\"");
                     curStr.append(e.getUrl());
-                    curStr.append("[shape=box] -- ");
+                    curStr.append("\" shape=box];");
+                    curStr.append("URL");
+                    curStr.append(URLCounter);
+                    curStr.append(" -- ");
                 }
                 curStr.append(e);
                 curStr.append(" [label=\"");
@@ -471,12 +502,19 @@ public class Parser {
 
             // Processing of non-terminal common elements
             if (!elem.getTerminal() && !elem.getCondTerminal() && !elem.getSpecialCond() && elem != parent) {
-                System.out.println("------------- IF");
+                System.out.println("------------- common");
                 System.out.println(elem.getSelector());
-                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
-                if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
-                    driver.navigate().refresh();
-                    reproduceElementAppearance(elem);
+                try {
+                    System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
+                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
+                        driver.navigate().refresh();
+                        reproduceElementAppearance(elem);
+                    }
+                } catch (NoSuchElementException e){
+                    if (elem.getParent() != null) {
+                        driver.navigate().refresh();
+                        reproduceElementAppearance(elem);
+                    }
                 }
 
                 System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
@@ -502,9 +540,18 @@ public class Parser {
 
 //          processing non-terminal special-conditions elements
             else if (elem.getSpecialCond() && !elem.getTerminal() && !elem.getCondTerminal() && elem != parent) {
-                if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
+                System.out.println("------------- special-condition");
+                System.out.println(elem.getSelector());
+                try {
+                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
                         driver.navigate().refresh();
-                    reproduceElementAppearance(elem);
+                        reproduceElementAppearance(elem);
+                    }
+                } catch (NoSuchElementException e){
+                    if (elem.getParent() != null) {
+                        driver.navigate().refresh();
+                        reproduceElementAppearance(elem);
+                    }
                 }
 
                 if (elem.getSpCondEl().type.equals(Constants.type_search_area)){
@@ -563,8 +610,23 @@ public class Parser {
 
             // todo: terminal processing
             else if (!elem.getSpecialCond() && (elem.getTerminal() || elem.getCondTerminal()) && elem != parent){
+                System.out.println("------------- terminal");
+                System.out.println(elem.getSelector());
+                try {
+                    if (elem.getParent() != null && !getElement(elem).isDisplayed()) {
+                        driver.navigate().refresh();
+                        reproduceElementAppearance(elem);
+                    }
+                } catch (NoSuchElementException e){
+                    if (elem.getParent() != null) {
+                        driver.navigate().refresh();
+                        reproduceElementAppearance(elem);
+                    }
+                }
+
+
                 if (elem.getCondTerminal()){
-//                    todo do conditions
+//                    todo: do conditions
                 }
 //                if (elem.getAction().equals(Constants.action_click)) {
                 getElement(elem).click();
