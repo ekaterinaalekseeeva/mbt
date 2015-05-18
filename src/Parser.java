@@ -458,7 +458,6 @@ public class Parser {
                     curStr.delete(0, curStr.length());
                     curStr.append("URL");
                     curStr.append(URLCounter);
-                    URLCounter++;
                     curStr.append(" [label=\"");
                     curStr.append(e.getUrl());
                     curStr.append("\" shape=box];\n");
@@ -470,6 +469,7 @@ public class Parser {
                     resStr = curStr.toString();
                     resStr = resStr.replaceAll("@", "");
                     out.write(resStr + "\n");
+                    URLCounter++;
                 }
             }
             out.write("}");
