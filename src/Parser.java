@@ -37,8 +37,9 @@ public class Parser {
 //            "input button",
             "textarea"};
 
-    public static ArrayList<WebElement> foundWebElements = new ArrayList<WebElement>();
+//    public static ArrayList<WebElement> foundWebElements = new ArrayList<WebElement>();
     public static ArrayList<Element> foundElements = new ArrayList<Element>();
+    public static ArrayList<String> ignoredSelectors = new ArrayList<String>();
     public static ArrayList<String> selectors = new ArrayList<String>();
 
     public static int graphCounter = 0;
@@ -201,7 +202,7 @@ public class Parser {
                 }
             }
 
-            if (value != null && !value.equals("") && !element.getTagName().equals("li")){
+            if (value != null && !value.equals("") && !element.getTagName().equals("li") && !element.getTagName().equals("input")){
                 counter++;
                 if (selectorType.equals(Constants.xpath_selector)){
                     if (counter == 1){
@@ -252,19 +253,19 @@ public class Parser {
         List<WebElement> elems = driver.findElements(By.cssSelector(selector));
         for (WebElement elem : elems) {
             System.out.println(selector);
-            if (!foundWebElements.contains(elem)) {
-                foundWebElements.add(elem);
-                if (!ignored && elem.isDisplayed()) {
-                    String xpathSelector = createSelector(elem, Constants.xpath_selector);
-                    WebElement par = driver.findElement(By.xpath(xpathSelector + "/.."));
-                    WebElement parpar = driver.findElement(By.xpath(xpathSelector + "/../.."));
-                    String parSelector = createSelector(par, Constants.css_selector);
-                    String parparSelector = createSelector(parpar, Constants.css_selector);
-                    String cssSelector = createSelector(elem, Constants.css_selector);
-                    System.out.println(parparSelector + " " + parSelector + " " + cssSelector);
-//                    if ((parparSelector + " " + parSelector + " " + cssSelector).equals("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']")){
-//                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//                    }
+//            if (!foundWebElements.contains(elem)) {
+            if (elem.isDisplayed()){
+//                foundWebElements.add(elem);
+                String xpathSelector = createSelector(elem, Constants.xpath_selector);
+                WebElement par = driver.findElement(By.xpath(xpathSelector + "/.."));
+                WebElement parpar = driver.findElement(By.xpath(xpathSelector + "/../.."));
+                String parSelector = createSelector(par, Constants.css_selector);
+                String parparSelector = createSelector(parpar, Constants.css_selector);
+                String cssSelector = createSelector(elem, Constants.css_selector);
+                System.out.println(parparSelector + " " + parSelector + " " + cssSelector);
+                if (ignored && !ignoredSelectors.contains(parparSelector + " " + parSelector + " " + cssSelector)) {
+                    ignoredSelectors.add(parparSelector + " " + parSelector + " " + cssSelector);
+                } else
                     if (!selectors.contains(parparSelector + " " + parSelector + " " + cssSelector) && !(parparSelector + " " + parSelector + " " + cssSelector).equals("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']")) {
                         Element tmpEl = new Element();
                         tmpEl.setElement(elem);
@@ -282,7 +283,6 @@ public class Parser {
                         selectors.add(parparSelector + " " + parSelector + " " + cssSelector);
                         System.out.println("added");
                     }
-                }
             }
             System.out.println();
         }
@@ -425,17 +425,6 @@ public class Parser {
             String resStr;
             for (Element e: foundElements) {
                 curStr.delete(0, curStr.length());
-                if (!e.getUrl().equals("")){
-                    curStr.append("URL");
-                    curStr.append(URLCounter);
-                    URLCounter++;
-                    curStr.append(" [label=\"");
-                    curStr.append(e.getUrl());
-                    curStr.append("\" shape=box];");
-                    curStr.append("URL");
-                    curStr.append(URLCounter);
-                    curStr.append(" -- ");
-                }
                 curStr.append(e);
                 curStr.append(" [label=\"");
 //                curStr.append(getElement(e).getTagName());
@@ -460,6 +449,23 @@ public class Parser {
                         curStr.append(" -- ");
                         curStr.append(lin);
                     }
+                    curStr.append(";");
+                    resStr = curStr.toString();
+                    resStr = resStr.replaceAll("@", "");
+                    out.write(resStr + "\n");
+                }
+                if (!e.getUrl().equals("")){
+                    curStr.delete(0, curStr.length());
+                    curStr.append("URL");
+                    curStr.append(URLCounter);
+                    URLCounter++;
+                    curStr.append(" [label=\"");
+                    curStr.append(e.getUrl());
+                    curStr.append("\" shape=box];\n");
+                    curStr.append("URL");
+                    curStr.append(URLCounter);
+                    curStr.append(" -- ");
+                    curStr.append(e);
                     curStr.append(";");
                     resStr = curStr.toString();
                     resStr = resStr.replaceAll("@", "");

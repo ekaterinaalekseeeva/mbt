@@ -35,6 +35,7 @@ public class Pages {
         ignElems.add("span.sb-issue-edit-attach-btn-l");
         ignElems.add("span[label='Log Out']");
         ignElems.add("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']");
+        ignElems.add("li[class*='nomatch']");
         ignElems.add("a[id*='deleteComment']");
         ignElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.editIssueLink']");
 //        TODO make it cond-terminal
