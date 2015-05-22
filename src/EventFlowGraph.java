@@ -8,6 +8,8 @@ import java.util.ArrayList;
  */
 public class EventFlowGraph {
     public static ArrayList<EFGNode> nodes = new ArrayList<EFGNode>();
+    public static ArrayList<EFGNode> roots = new ArrayList<EFGNode>();
+    public static ArrayList<ArrayList<EFGNode>> paths = new ArrayList<ArrayList<EFGNode>>();
 
     public static EFGNode findNode(String name){
         for (EFGNode i : nodes){
@@ -25,6 +27,15 @@ public class EventFlowGraph {
             } else {
                 System.out.println(i.name + " " + i.selector + " " + i.parent.name + " " + i.simple);
             }
+        }
+    }
+
+    public static void printPaths(){
+        for (ArrayList<EFGNode> i : paths){
+            for (EFGNode j : i){
+                System.out.print(j.name + " ");
+            }
+            System.out.println();
         }
     }
 
@@ -53,7 +64,7 @@ public class EventFlowGraph {
                     }
                 }
             }
-            System.out.println();
+//            System.out.println();
         }
     }
 
@@ -62,6 +73,7 @@ public class EventFlowGraph {
             if (i.parent == null){
                 i.simple = true;
                 i.root = true;
+                roots.add(i);
             } else {
                 i.simple = false;
                 findNode(i.parent.name).simple = false;
@@ -69,8 +81,150 @@ public class EventFlowGraph {
         }
     }
 
-    public static void findPathsBetweenRoots(){
+//    public static ArrayList<EFGNode> next_combination (int[] a, int n) {
+//        System.out.println("next");
+//        int k = a.length;
+////        for (int i : a){
+////            System.out.print(i + " ");
+////        }
+////        System.out.println();
+//
+//        for (int i = k-1 ; i >= 0; i--) {
+//            System.out.println(a[i] + " " + (n - k + i + 1));
+//            if (a[i] < n - k + i + 1) {
+//                a[i]++;
+//                for (int j = i + 1; j < k; ++j)
+//                    a[j] = a[j - 1] + 1;
+//                System.out.println("true");
+//                return a;
+//            }
+//        }
+//        System.out.println("false");
+//        return null;
+//    }
 
+    public static int swap(int a, int b) {  // usage: y = swap(x, x=y);
+        return a;
+    }
+
+    public static int[] reverse (int[] array, int start, int end){
+        int i;
+        int m = end - start;
+        for (i = 0; i < m/2; i++){
+            array[end-i-1] = swap (array[i+start], array[i+start]=array[end-i-1]);
+        }
+        return array;
+    }
+
+    public static void generatePermutations(int length, int firstExcluded, int secondExcluded){
+        int n = roots.size()-1;
+        int[] combinations = new int [length];
+        for (int i = 0; i < length; i++){
+                combinations[i] = i;
+        }
+
+        System.out.println("length " + length);
+
+        while(true){
+//            for(int i=0;i<length;i++) //Печатаем очередную последовательность
+//                System.out.print(combinations[i] + " ");
+//            System.out.println();
+
+            boolean hasExcluded = false;
+            for(int i = 0; i < length; i++){
+                if (combinations[i] == firstExcluded || combinations[i] == secondExcluded){
+                    hasExcluded = true;
+                    break;
+                }
+            }
+
+            if(!hasExcluded){
+//                System.out.println("not has excluded");
+                int min;
+                boolean ifCheck = false;
+                int [] permutations = combinations.clone();
+                while (true){
+                    for (int i = length-2; i >= 0; i--){ //просматриваем массив с конца
+                        ifCheck = false;
+                        if (permutations[i] < permutations[i+1]) { // если возникает "беспорядок" (эл-ты расположены не по возрастанию начиная с какого-то эл-та X)
+                            min = i+1;
+                            for (int j = i+1; j < length; j++){
+                                if (permutations[j] <= permutations[min] && permutations[j] > permutations[i]) {//ищем среди предыдущих эл-тов наименьший, больший X
+                                    min = j;
+                                }
+                            }
+                            permutations[min] = swap (permutations[i], permutations[i]=permutations[min]); //меняем их местами
+                            if ((i+1)!=(length-1)) {
+                                permutations = reverse (permutations, i+1, length);//разворачиваем все предыдущие эл-ты
+                            }
+                            ifCheck = true;
+                            break;
+                        }
+                    }
+                    if (!ifCheck) {
+                        break;
+                    }
+                    ArrayList<EFGNode> curPath = new ArrayList<EFGNode>();
+                    curPath.add(roots.get(firstExcluded));
+                    for(int i = 0; i < length; i++) {
+                        curPath.add(roots.get(permutations[i]));
+                        System.out.print(permutations[i] + " ");
+                    }
+                    curPath.add(roots.get(secondExcluded));
+                    paths.add(curPath);
+                    System.out.println();
+                }
+
+                ArrayList<EFGNode> curPath = new ArrayList<EFGNode>();
+                curPath.add(roots.get(firstExcluded));
+                for(int i = 0; i < length; i++) {
+                    curPath.add(roots.get(combinations[i]));
+                    System.out.print(combinations[i] + " ");
+                }
+                curPath.add(roots.get(secondExcluded));
+                paths.add(curPath);
+                System.out.println();
+            }
+
+            int i;
+            for(i=length-1;i>=0 && combinations[i]==n+i-length+1;i--); //Ищем первый справа элемент, не достигший максимального значения
+
+            if(i==-1) break; //Если не нашли, то заканчиваем работу.
+
+            combinations[i]++; //Если нашли, то увеличиваем его на 1
+
+            for(int j=i+1;j<length;j++) //и заполняем правую часть
+
+                combinations[j]=combinations[j-1]+1; //минимально возможными значениями.
+
+        }
+    }
+
+    public static void findPathBetweenTwoNodes(int a, int b){
+        int r = 0;
+        int n = roots.size();
+        ArrayList<EFGNode> curPath = new ArrayList<EFGNode>();
+        curPath.add(roots.get(a));
+        curPath.add(roots.get(b));
+        paths.add(curPath);
+
+//        r++;
+        while (r+2 < n){
+            r++;
+            generatePermutations(r, a, b);
+
+        }
+    }
+
+    public static void findPathsBetweenRoots(){
+//        for (int i = 0; i < roots.size(); i++){
+//            for (int j = 0; j < roots.size(); j++){
+//                if (i != j){
+//                    findPathBetweenTwoNodes(i, j);
+//                }
+//            }
+//        }
+        findPathBetweenTwoNodes(0, 4);
     }
 
     public static void findPathsInTree(EFGNode root){
@@ -79,7 +233,8 @@ public class EventFlowGraph {
 
     public static void main(String[] args) throws IOException {
         int graphCounter = 87;
-        String filename = "GUIgraph"+graphCounter;
+//        String filename = "GUIgraph"+graphCounter;
+        String filename = "GUIgraph";
 
         parseGUIGraph(filename);
 
@@ -87,6 +242,8 @@ public class EventFlowGraph {
 
         findPathsBetweenRoots();
 
-        printNodes();
+//        printNodes();
+
+        printPaths();
     }
 }

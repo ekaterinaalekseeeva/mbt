@@ -12,5 +12,7 @@ public class EFGNode {
         name = "";
         selector = "";
         parent = null;
+        simple = false;
+        root = false;
     }
 }
