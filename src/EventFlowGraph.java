@@ -9,11 +9,21 @@ import java.util.ArrayList;
 public class EventFlowGraph {
     public static ArrayList<EFGNode> nodes = new ArrayList<EFGNode>();
     public static ArrayList<EFGNode> roots = new ArrayList<EFGNode>();
-    public static ArrayList<ArrayList<EFGNode>> paths = new ArrayList<ArrayList<EFGNode>>();
+    public static ArrayList<PathInTree> pathsInTrees = new ArrayList<PathInTree>();
+//    public static ArrayList<ArrayList<EFGNode>> paths = new ArrayList<ArrayList<EFGNode>>();
 
     public static EFGNode findNode(String name){
         for (EFGNode i : nodes){
             if (i.name.equals(name)){
+                return i;
+            }
+        }
+        return null;
+    }
+
+    public static PathInTree findPathInTreeByRoot(EFGNode root){
+        for (PathInTree i : pathsInTrees){
+            if (i.root == root){
                 return i;
             }
         }
@@ -30,14 +40,26 @@ public class EventFlowGraph {
         }
     }
 
-    public static void printPaths(){
-        for (ArrayList<EFGNode> i : paths){
-            for (EFGNode j : i){
-                System.out.print(j.name + " ");
+    public static void printPathsInTrees(){
+        for (PathInTree i : pathsInTrees){
+            System.out.println(i.root.name);
+            for (ArrayList<EFGNode> j : i.paths){
+                for (EFGNode k : j){
+                    System.out.print(k.name + " ");
+                }
+                System.out.println();
             }
             System.out.println();
         }
     }
+
+    public static void printPath(ArrayList<EFGNode> path){
+        for (EFGNode j : path){
+                System.out.print(j.name + " ");
+            }
+            System.out.println();
+    }
+
 
     public static void parseGUIGraph (String filename) throws IOException {
         BufferedReader input = new BufferedReader(new FileReader(filename));
@@ -79,6 +101,7 @@ public class EventFlowGraph {
                 findNode(i.parent.name).simple = false;
             }
         }
+        System.out.println("Number of roots " + roots.size());
     }
 
 //    public static ArrayList<EFGNode> next_combination (int[] a, int n) {
@@ -114,6 +137,22 @@ public class EventFlowGraph {
             array[end-i-1] = swap (array[i+start], array[i+start]=array[end-i-1]);
         }
         return array;
+    }
+
+    public static void addPathsFromTree(ArrayList<EFGNode> curPath){
+        for (int i = 0; i < curPath.size(); i++){
+            if (!curPath.get(i).simple){
+                ArrayList<ArrayList<EFGNode>> paths = findPathInTreeByRoot(curPath.get(i)).paths;
+                for (ArrayList<EFGNode> j : paths){
+//                                ArrayList<EFGNode> before = (ArrayList<EFGNode>)curPath.subList(0, i+1);
+                    if (i < curPath.size()-1) {
+                        printPath(insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>(curPath.subList(i + 1, curPath.size()))));
+                    } else{
+                        printPath(insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>()));
+                    }
+                }
+            }
+        }
     }
 
     public static void generatePermutations(int length, int firstExcluded, int secondExcluded){
@@ -168,22 +207,28 @@ public class EventFlowGraph {
                     curPath.add(roots.get(firstExcluded));
                     for(int i = 0; i < length; i++) {
                         curPath.add(roots.get(permutations[i]));
-                        System.out.print(permutations[i] + " ");
+//                        System.out.print(permutations[i] + " ");
                     }
                     curPath.add(roots.get(secondExcluded));
-                    paths.add(curPath);
-                    System.out.println();
+
+//                    paths.add(curPath);
+                    printPath(curPath);
+//                    System.out.println();
+
+                    addPathsFromTree(curPath);
                 }
 
                 ArrayList<EFGNode> curPath = new ArrayList<EFGNode>();
                 curPath.add(roots.get(firstExcluded));
                 for(int i = 0; i < length; i++) {
                     curPath.add(roots.get(combinations[i]));
-                    System.out.print(combinations[i] + " ");
+//                    System.out.print(combinations[i] + " ");
                 }
                 curPath.add(roots.get(secondExcluded));
-                paths.add(curPath);
-                System.out.println();
+//                paths.add(curPath);
+                printPath(curPath);
+//                System.out.println();
+                addPathsFromTree(curPath);
             }
 
             int i;
@@ -200,13 +245,34 @@ public class EventFlowGraph {
         }
     }
 
+    public static ArrayList<EFGNode> insertFragmentInPath(ArrayList<EFGNode> pathBeforeInsert, ArrayList<EFGNode> fragment, ArrayList<EFGNode> pathAfterInsert){
+        ArrayList<EFGNode> curPath = new ArrayList<EFGNode>();
+        for (EFGNode i : pathBeforeInsert){
+            curPath.add(i);
+        }
+
+        for (EFGNode i : fragment){
+            curPath.add(i);
+        }
+
+        for (EFGNode i : pathAfterInsert){
+            curPath.add(i);
+        }
+
+        return curPath;
+    }
+
     public static void findPathBetweenTwoNodes(int a, int b){
+        System.out.println("\nnew search");
         int r = 0;
         int n = roots.size();
         ArrayList<EFGNode> curPath = new ArrayList<EFGNode>();
         curPath.add(roots.get(a));
         curPath.add(roots.get(b));
-        paths.add(curPath);
+//        paths.add(curPath);
+        printPath(curPath);
+
+        addPathsFromTree(curPath);
 
 //        r++;
         while (r+2 < n){
@@ -217,18 +283,32 @@ public class EventFlowGraph {
     }
 
     public static void findPathsBetweenRoots(){
-//        for (int i = 0; i < roots.size(); i++){
-//            for (int j = 0; j < roots.size(); j++){
-//                if (i != j){
-//                    findPathBetweenTwoNodes(i, j);
-//                }
-//            }
-//        }
-        findPathBetweenTwoNodes(0, 4);
+        for (int i = 0; i < roots.size(); i++){
+            for (int j = 0; j < roots.size(); j++){
+                if (i != j){
+                    findPathBetweenTwoNodes(i, j);
+                }
+            }
+        }
+//        findPathBetweenTwoNodes(0, 4);
     }
 
-    public static void findPathsInTree(EFGNode root){
-
+    public static void findPathsInTree(EFGNode root, ArrayList<EFGNode> path, PathInTree pathInTree){
+        for (EFGNode i: nodes){
+            if (!i.root && i.parent == root){
+                path.add(i);
+                ArrayList<EFGNode> newpath = new ArrayList<EFGNode>();
+                for (EFGNode j : path){
+                    newpath.add(j);
+                }
+                pathInTree.paths.add(newpath);
+                findPathsInTree(i, path, pathInTree);
+            }
+//
+        }
+        if (path.size() > 0) {
+            path.remove(path.size() - 1);
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -240,10 +320,23 @@ public class EventFlowGraph {
 
         markSimpleNodes();
 
+//        System.out.println("\nroots for trees:");
+        for (EFGNode i : nodes){
+            if (i.root && !i.simple){
+//                System.out.println(i.name);
+                PathInTree newPath = new PathInTree();
+                newPath.root = i;
+                ArrayList<EFGNode> path = new ArrayList<EFGNode>();
+                findPathsInTree(i, path, newPath);
+                pathsInTrees.add(newPath);
+            }
+        }
+
         findPathsBetweenRoots();
 
 //        printNodes();
 
-        printPaths();
+        System.out.println("\npaths:");
+        printPathsInTrees();
     }
 }
