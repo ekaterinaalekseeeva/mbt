@@ -103,7 +103,7 @@ public class EventFlowGraph {
 //            System.out.println(currentLine);
             EFGNode tmpNode = new EFGNode();
             int len = currentLine.length();
-            if (!currentLine.contains("URL")) {
+            if (!currentLine.contains("URL") && !currentLine.contains("terminal")) {
                 if (currentLine.contains("label")) {
                     tmpNode.name = currentLine.substring(0, currentLine.indexOf(' '));
                     tmpNode.selector = currentLine.substring(currentLine.indexOf('"')+1, len - 3);
@@ -291,9 +291,9 @@ public class EventFlowGraph {
 
     public static void main(String[] args) throws IOException {
         out = new BufferedWriter(new FileWriter("Paths.txt"));
-        int graphCounter = 0;
-        String filename = "GUIgraph"+graphCounter;
-//        String filename = "GUIgraph";
+        int graphCounter = 8;
+//        String filename = "GUIgraph"+graphCounter;
+        String filename = "GUIgraph";
 
         parseGUIGraph(filename);
         System.out.println("Number of nodes " + nodes.size());

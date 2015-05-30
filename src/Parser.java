@@ -80,7 +80,7 @@ public class Parser {
                 boolean part = false;
                 if (element.getTagName().equals("a") && class_.contains("attribute")){
                     title = title.split(":")[0];
-                    System.out.println(title);
+//                    System.out.println(title);
                     part = true;
                 }
                 if (selectorType.equals(Constants.xpath_selector)){
@@ -427,6 +427,9 @@ public class Parser {
                 curStr.delete(0, curStr.length());
                 curStr.append(e);
                 curStr.append(" [label=\"");
+                if (e.getTerminal() || e.getCondTerminal()) {
+                    curStr.append("terminal ");
+                }
 //                curStr.append(getElement(e).getTagName());
 //                curStr.append(" ");
 //                curStr.append(getElement(e).getText());
@@ -699,7 +702,7 @@ public class Parser {
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
         baseURL = "http://unit-530.labs.intellij.net:8080/issue/BDP-652";
-        login();
+//        login();
         driver.get(baseURL);
         //todo: waiting
         try {
