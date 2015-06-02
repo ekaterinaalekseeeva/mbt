@@ -20,6 +20,14 @@ public class Pages {
         termElems.add("div[id='ring-header-youtrack-create'] button[class*='ring-btn']");
 //        termElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.editIssueLink']");
 
+        ArrayList<String> nesElems = new ArrayList<String>();
+        nesElems.add("button[id='id_l.I.tb.c.commandMenu']");
+        nesElems.add("td[tabid='Similar Issues']");
+        nesElems.add("button[id='id_l.I.ic.it.c.ac.addComment']");
+        nesElems.add("a[id='id_l.I.ic.icr.iv.visibilityContent']");
+        nesElems.add("a[title*='Project: ']");
+        nesElems.add("li > a[id*='ommand']");
+
         ArrayList<String> ignElems = new ArrayList<String>();
         ignElems.add("span.issue-toggler-ico");
         ignElems.add("a.issue-toggler");
@@ -42,6 +50,7 @@ public class Pages {
         ignElems.add("div[class*='ring-btn-group'] button[id='id_l.I.tb.deleteIssueLink']");
 
         Page tmpPage = new Page(page, url, termElems, ignElems);
+        tmpPage.necessaryElementsSelectors = nesElems;
 
         SpecialConditionsElement el = new SpecialConditionsElement();
         el.selector = "span.comments-toggler-ico";
@@ -63,6 +72,7 @@ public class Pages {
     public class Page {
         public String name;
         public String url;
+        public ArrayList<String> necessaryElementsSelectors = new ArrayList<String>();
         public ArrayList<String> terminalElementsSelectors = new ArrayList<String>();
         public ArrayList<String> ignoredElementsSelectors = new ArrayList<String>();
         public ArrayList<SpecialConditionsElement> specialConditionsElements = new ArrayList<SpecialConditionsElement>();

@@ -54,6 +54,7 @@ public class Parser {
         String cn = element.getAttribute("cn");
         String name = element.getAttribute("name");
         String value = element.getAttribute("value");
+        String tabid = element.getAttribute("tabid");
 //        String type = element.getAttribute("type");
         int counter = 0;
 
@@ -153,6 +154,24 @@ public class Parser {
                 } else {
                     curSel.append("[cn='");
                     curSel.append(cn);
+                    curSel.append("']");
+                }
+            }
+
+            if (tabid != null && !tabid.equals("")){
+                counter++;
+                if (selectorType.equals(Constants.xpath_selector)){
+                    if (counter == 1){
+                        curSel.append("[");
+                    } else{
+                        curSel.append(" and ");
+                    }
+                    curSel.append("@tabid='");
+                    curSel.append(tabid);
+                    curSel.append("'");
+                } else {
+                    curSel.append("[tabid='");
+                    curSel.append(tabid);
                     curSel.append("']");
                 }
             }
@@ -291,76 +310,85 @@ public class Parser {
 // Calls parsing method for different types of elements
     public static void parsingPage(String pageName, Element parent, String area, ArrayList<SpecialConditionsElement.AllowedSelector> selectors){
 //        System.out.println("parsingPage entered!");
+        ArrayList<String> necessary = new ArrayList<String>();
         ArrayList<String> terminal = new ArrayList<String>();
         ArrayList<String> ignored = new ArrayList<String>();
         ArrayList<SpecialConditionsElement> specialCond = new ArrayList<SpecialConditionsElement>();
         for (Pages.Page p : pages.pagesList){
             if (p.name.equals(pageName)){
+                necessary = p.necessaryElementsSelectors;
                 terminal = p.terminalElementsSelectors;
                 ignored = p.ignoredElementsSelectors;
                 specialCond = p.specialConditionsElements;
             }
         }
-
-        String selector;
-
-        for (String s: ignored){
-            if (area == null){
-                selector = s;
-            } else {
-                selector = area + " " + s;
-            }
-
-//            System.out.println(selector);
-            parsingElements(selector, Constants.action_click, parent, true, false, false, false, null);
-        }
-
-        for (SpecialConditionsElement el: specialCond){
-            if (area == null){
-                selector = el.selector;
-            } else {
-                selector = area + " " + el.selector;
-            }
-
-//            System.out.println(selector);
-            parsingElements(selector, Constants.action_click, parent, false, false, true, false, el);
-        }
-
-        for (String s: terminal){
-            if (area == null){
-                selector = s;
-            } else {
-                selector = area + " " + s;
-            }
-
-//            System.out.println(selector);
-            parsingElements(selector, Constants.action_click, parent, false, true, false, false, null);
-        }
-
-        if (selectors == null) {
-            for (String s : clickableElements) {
-                if (area == null){
-                    selector = s;
-                } else {
-                    selector = area + " " + s;
-                }
-                parsingElements(selector, Constants.action_click, parent, false, false, false, false, null);
-            }
-
-            for (String s : writableElements) {
-                if (area == null){
-                    selector = s;
-                } else {
-                    selector = area + " " + s;
-                }
-                parsingElements(selector, Constants.action_write, parent, false, false, false, false, null);
+        if (!necessary.isEmpty()){
+            for (String s : necessary) {
+                System.out.println(s);
+                parsingElements(s, Constants.action_click, parent, false, false, false, false, null);
             }
         } else {
-            for (SpecialConditionsElement.AllowedSelector s : selectors){
-                if (s.action.equals(Constants.action_click)) {
-                    parsingElements(s.selector, Constants.action_click, parent, false, false, false, false, null);
-                } else if (s.action.equals(Constants.action_write)) {
-                    parsingElements(s.selector, Constants.action_write, parent, false, false, false, false, null);
+
+            String selector;
+
+            for (String s : ignored) {
+                if (area == null) {
+                    selector = s;
+                } else {
+                    selector = area + " " + s;
+                }
+
+                //            System.out.println(selector);
+                parsingElements(selector, Constants.action_click, parent, true, false, false, false, null);
+            }
+
+            for (SpecialConditionsElement el : specialCond) {
+                if (area == null) {
+                    selector = el.selector;
+                } else {
+                    selector = area + " " + el.selector;
+                }
+
+                //            System.out.println(selector);
+                parsingElements(selector, Constants.action_click, parent, false, false, true, false, el);
+            }
+
+            for (String s : terminal) {
+                if (area == null) {
+                    selector = s;
+                } else {
+                    selector = area + " " + s;
+                }
+
+                //            System.out.println(selector);
+                parsingElements(selector, Constants.action_click, parent, false, true, false, false, null);
+            }
+
+            if (selectors == null) {
+                for (String s : clickableElements) {
+                    if (area == null) {
+                        selector = s;
+                    } else {
+                        selector = area + " " + s;
+                    }
+                    parsingElements(selector, Constants.action_click, parent, false, false, false, false, null);
+                }
+
+                for (String s : writableElements) {
+                    if (area == null) {
+                        selector = s;
+                    } else {
+                        selector = area + " " + s;
+                    }
+                    parsingElements(selector, Constants.action_write, parent, false, false, false, false, null);
+                }
+            } else {
+                for (SpecialConditionsElement.AllowedSelector s : selectors) {
+                    if (s.action.equals(Constants.action_click)) {
+                        parsingElements(s.selector, Constants.action_click, parent, false, false, false, false, null);
+                    } else if (s.action.equals(Constants.action_write)) {
+                        parsingElements(s.selector, Constants.action_write, parent, false, false, false, false, null);
+                    }
                 }
             }
         }
@@ -702,7 +730,7 @@ public class Parser {
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
         baseURL = "http://unit-530.labs.intellij.net:8080/issue/BDP-652";
-//        login();
+        login();
         driver.get(baseURL);
         //todo: waiting
         try {

@@ -256,7 +256,6 @@ public class EventFlowGraph {
         while (r+2 < n){
             r++;
             generatePermutations(r, a, b);
-
         }
     }
 
