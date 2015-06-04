@@ -273,6 +273,11 @@ public class Parser {
         for (WebElement elem : elems) {
             System.out.println(selector);
 //            if (!foundWebElements.contains(elem)) {
+            if (ignored){
+                if (!ignoredSelectors.contains(selector)) {
+                    ignoredSelectors.add(selector);
+                }
+            }
             if (elem.isDisplayed()){
 //                foundWebElements.add(elem);
                 String xpathSelector = createSelector(elem, Constants.xpath_selector);
@@ -285,7 +290,7 @@ public class Parser {
                 if (ignored && !ignoredSelectors.contains(parparSelector + " " + parSelector + " " + cssSelector)) {
                     ignoredSelectors.add(parparSelector + " " + parSelector + " " + cssSelector);
                 } else
-                    if (!selectors.contains(parparSelector + " " + parSelector + " " + cssSelector) && !(parparSelector + " " + parSelector + " " + cssSelector).equals("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']")) {
+                    if (!ignored && !ignoredSelectors.contains(parparSelector + " " + parSelector + " " + cssSelector) && !selectors.contains(parparSelector + " " + parSelector + " " + cssSelector) && !(parparSelector + " " + parSelector + " " + cssSelector).equals("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']")) {
                         Element tmpEl = new Element();
                         tmpEl.setElement(elem);
                         tmpEl.setTerminal(terminal);
