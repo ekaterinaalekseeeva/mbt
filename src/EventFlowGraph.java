@@ -6,6 +6,7 @@ import java.util.ArrayList;
  */
 public class EventFlowGraph {
     public static int pathLength;
+    public static int numberOfPaths;
     public static ArrayList<EFGNode> nodes = new ArrayList<EFGNode>();
     public static ArrayList<EFGNode> roots = new ArrayList<EFGNode>();
     public static ArrayList<PathInTree> pathsInTrees = new ArrayList<PathInTree>();
@@ -53,6 +54,7 @@ public class EventFlowGraph {
     }
 
     public static void printPath(ArrayList<EFGNode> path) {
+        numberOfPaths++;
         try {
             for (EFGNode j : path) {
                 out.write(j.name + " ");
@@ -325,5 +327,6 @@ public class EventFlowGraph {
 //        printPathsInTrees();
 
         out.close();
+        System.out.println("Found paths: " + numberOfPaths);
     }
 }
