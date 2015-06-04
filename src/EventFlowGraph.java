@@ -5,6 +5,7 @@ import java.util.ArrayList;
  * Created by Ekaterina.Alekseeva on 18-May-15.
  */
 public class EventFlowGraph {
+    public static int pathLength;
     public static ArrayList<EFGNode> nodes = new ArrayList<EFGNode>();
     public static ArrayList<EFGNode> roots = new ArrayList<EFGNode>();
     public static ArrayList<PathInTree> pathsInTrees = new ArrayList<PathInTree>();
@@ -84,11 +85,13 @@ public class EventFlowGraph {
             if (!curPath.get(i).simple){
                 ArrayList<ArrayList<EFGNode>> paths = findPathInTreeByRoot(curPath.get(i)).paths;
                 for (ArrayList<EFGNode> j : paths){
-//                                ArrayList<EFGNode> before = (ArrayList<EFGNode>)curPath.subList(0, i+1);
-                    if (i < curPath.size()-1) {
-                        printPath(insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>(curPath.subList(i + 1, curPath.size()))));
-                    } else{
-                        printPath(insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>()));
+                    if (pathLength >=2 && (curPath.size() + j.size()) == pathLength) {
+                        //                                ArrayList<EFGNode> before = (ArrayList<EFGNode>)curPath.subList(0, i+1);
+                        if (i < curPath.size() - 1) {
+                            printPath(insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>(curPath.subList(i + 1, curPath.size()))));
+                        } else {
+                            printPath(insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>()));
+                        }
                     }
                 }
             }
@@ -158,7 +161,7 @@ public class EventFlowGraph {
                 combinations[i] = i;
         }
 
-        System.out.println("length " + length);
+        System.out.println("length " + length + " path length " + pathLength);
 
         while(true){
 //            for(int i=0;i<length;i++) //Печатаем очередную последовательность
@@ -248,14 +251,19 @@ public class EventFlowGraph {
         curPath.add(roots.get(a));
         curPath.add(roots.get(b));
 //        paths.add(curPath);
-        printPath(curPath);
-
+        if (pathLength <= 2) {
+            printPath(curPath);
+        }
         addPathsFromTree(curPath);
 
 //        r++;
-        while (r+2 < n){
-            r++;
-            generatePermutations(r, a, b);
+        if (pathLength < 2) {
+            while (r + 2 < n) {
+                r++;
+                generatePermutations(r, a, b);
+            }
+        } else{
+            generatePermutations(pathLength-2, a, b);
         }
     }
 
@@ -289,8 +297,9 @@ public class EventFlowGraph {
     }
 
     public static void main(String[] args) throws IOException {
+        pathLength = 2;
         out = new BufferedWriter(new FileWriter("Paths.txt"));
-        int graphCounter = 8;
+        int graphCounter = 87;
 //        String filename = "GUIgraph"+graphCounter;
         String filename = "GUIgraph";
 
