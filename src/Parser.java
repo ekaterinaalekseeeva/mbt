@@ -118,7 +118,7 @@ public class Parser {
                 counter++;
                 String[] c = class_.split(" ");
                 for (String i : c){
-                    if (!i.equals("")){
+                    if (!i.equals("") && !i.equals("active")){
                         class_ = i;
                         break;
                     }
@@ -574,13 +574,14 @@ public class Parser {
 //                }
 //
 //                System.out.println(" Is displayed: " + getElement(elem).isDisplayed());
-
-                if (elem.getAction().equals(Constants.action_click)) {
-                    getElement(elem).click();
-                } else {
-                    //todo: m.b. random text generation?
-                    getElement(elem).sendKeys("sdfihsdifhsid234211@#!#$@^\\%@^*&!||&&//?,.`~");
-                }
+                try {
+                    if (elem.getAction().equals(Constants.action_click)) {
+                        getElement(elem).click();
+                    } else {
+                        //todo: m.b. random text generation?
+                        getElement(elem).sendKeys("sdfihsdifhsid234211@#!#$@^\\%@^*&!||&&//?,.`~");
+                    }
+                } catch (ElementNotVisibleException ignored){}
                 //todo: wait until page is updated
                 try {
                     Thread.sleep(1500);                 //1000 milliseconds is one second.
@@ -611,7 +612,9 @@ public class Parser {
 //                }
 
                 if (elem.getSpCondEl().type.equals(Constants.type_search_area)){
-                    getElement(elem).click();
+                    try {
+                        getElement(elem).click();
+                    } catch (ElementNotVisibleException ignored){}
 
                     //todo: wait until page is updated
                     try {
@@ -625,7 +628,9 @@ public class Parser {
 //                    System.out.println("Exit recursion");
 
                 } else if (elem.getSpCondEl().type.equals(Constants.type_search_elements)){
-                    getElement(elem).click();
+                    try {
+                        getElement(elem).click();
+                    } catch (ElementNotVisibleException ignored){}
 
                     //todo: wait until page is updated
                     try {
@@ -639,12 +644,18 @@ public class Parser {
 //                    System.out.println("Exit recursion");
 
                 } else if (elem.getSpCondEl().type.equals(Constants.type_write)){
+                    try {
 //                    todo: random choose index from array
-                    getElement(elem).sendKeys(elem.getSpCondEl().allowedWrite.get(0));
+                        getElement(elem).sendKeys(elem.getSpCondEl().allowedWrite.get(0));
+                    } catch (ElementNotVisibleException ignored){}
+
 
                 } else if (elem.getSpCondEl().type.equals(Constants.type_alert_accept)) {
                     try {
-                        getElement(elem).click();
+                        try {
+                            getElement(elem).click();
+                        } catch (ElementNotVisibleException ignored){}
+
                     } catch (UnhandledAlertException e){
                         Alert alert = driver.switchTo().alert();
                         alert.accept();
@@ -654,7 +665,9 @@ public class Parser {
 
                 } else if (elem.getSpCondEl().type.equals(Constants.type_alert_decline)) {
                     try {
-                        getElement(elem).click();
+                        try {
+                            getElement(elem).click();
+                        } catch (ElementNotVisibleException ignored){}
                     } catch (UnhandledAlertException e){
                         Alert alert = driver.switchTo().alert();
                         alert.dismiss();
@@ -689,7 +702,9 @@ public class Parser {
 //                    todo: do conditions
                 }
 //                if (elem.getAction().equals(Constants.action_click)) {
-                getElement(elem).click();
+                try {
+                    getElement(elem).click();
+                } catch (ElementNotVisibleException ignored){}
 //                }
 
                 //todo: wait until page is updated
@@ -734,15 +749,49 @@ public class Parser {
 //        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWD\\chromedriver\\chromedriver.exe");
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
-        baseURL = "http://unit-530:8080/issue/MAIL-1";
+        baseURL = "http://unit-530:8080/issue/BDP-652";
         login();
         driver.get(baseURL);
+
         //todo: waiting
         try {
-            Thread.sleep(5000);
+            Thread.sleep(25000);
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
+//        driver.findElement(By.cssSelector("div.ring-header__user-menu-item_login > button")).click();
+//        try {
+//            Thread.sleep(1500);
+//        } catch(InterruptedException ex) {
+//            Thread.currentThread().interrupt();
+//        }
+//        driver.findElement(By.cssSelector("input#username")).sendKeys("root");
+//        driver.findElement(By.cssSelector("input#password")).sendKeys("root");
+//        driver.findElement(By.cssSelector("button.login-button")).click();
+//
+//        driver.get(baseURL);
+//        //todo: waiting
+//        try {
+//            Thread.sleep(5000);
+//        } catch(InterruptedException ex) {
+//            Thread.currentThread().interrupt();
+//        }
+//        driver.get("http://unit-530:8080/issues");
+//        try {
+//            Thread.sleep(5000);
+//        } catch(InterruptedException ex) {
+//            Thread.currentThread().interrupt();
+//        }
+//
+//        driver.get(baseURL);
+////        driver.navigate().refresh();
+//        //todo: waiting
+//        try {
+//            Thread.sleep(5000);
+//        } catch(InterruptedException ex) {
+//            Thread.currentThread().interrupt();
+//        }
+//        driver.navigate().refresh();
 
         process(pageName, null, null, null);
 //        WebElement e = driver.findElement(By.xpath("//div[@class='combobox']/../.."));

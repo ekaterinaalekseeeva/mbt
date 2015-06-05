@@ -1,12 +1,15 @@
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Ekaterina.Alekseeva on 18-May-15.
  */
 public class EventFlowGraph {
     public static int pathLength;
-    public static long numberOfPaths;
+    public static long numberOfPaths = 0;
+    public static int numberOfNodes = 0;
     public static ArrayList<EFGNode> nodes = new ArrayList<EFGNode>();
     public static ArrayList<EFGNode> roots = new ArrayList<EFGNode>();
     public static ArrayList<PathInTree> pathsInTrees = new ArrayList<PathInTree>();
@@ -55,11 +58,22 @@ public class EventFlowGraph {
 
     public static void printPath(ArrayList<EFGNode> path) {
         numberOfPaths++;
+        if (numberOfPaths%10000000==0) {
+            System.out.println(numberOfPaths);
+        }
+//        if (path.size() == 5){
+//            for (EFGNode j : path) {
+//                System.out.print(j.name + " ");
+//            }
+//        System.out.println();
+//        }
 //        try {
 //            for (EFGNode j : path) {
 //                out.write(j.name + " ");
+//                System.out.print(j.name + " ");
 //            }
 //            out.write("\n");
+//        System.out.println();
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
@@ -82,17 +96,25 @@ public class EventFlowGraph {
         return curPath;
     }
 
-    public static void addPathsFromTree(ArrayList<EFGNode> curPath){
-        for (int i = 0; i < curPath.size(); i++){
+    public static void addPathsFromTree(ArrayList<EFGNode> curPath, int start){
+        ArrayList<EFGNode> tmpPath;
+        for (int i = start; i < curPath.size(); i++){
             if (!curPath.get(i).simple){
                 ArrayList<ArrayList<EFGNode>> paths = findPathInTreeByRoot(curPath.get(i)).paths;
                 for (ArrayList<EFGNode> j : paths){
-                    if (pathLength >=2 && (curPath.size() + j.size()) == pathLength) {
-                        //                                ArrayList<EFGNode> before = (ArrayList<EFGNode>)curPath.subList(0, i+1);
-                        if (i < curPath.size() - 1) {
-                            printPath(insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>(curPath.subList(i + 1, curPath.size()))));
-                        } else {
-                            printPath(insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>()));
+                    //                                ArrayList<EFGNode> before = (ArrayList<EFGNode>)curPath.subList(0, i+1);
+                    if (i < curPath.size() - 1) {
+                        tmpPath = insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>(curPath.subList(i + 1, curPath.size())));
+                        if ((pathLength < 2) || (pathLength >=2 && (curPath.size() + j.size()) == pathLength)) {
+                            printPath(tmpPath);
+                        }
+                        if ((pathLength < 2) || (pathLength >=2 && curPath.size() < pathLength)) {
+                            addPathsFromTree(tmpPath, i+j.size()+1);
+                        }
+                    } else {
+                        tmpPath = insertFragmentInPath(new ArrayList<EFGNode>(curPath.subList(0, i + 1)), j, new ArrayList<EFGNode>());
+                        if ((pathLength < 2) || (pathLength >=2 && (curPath.size() + j.size()) == pathLength)) {
+                            printPath(tmpPath);
                         }
                     }
                 }
@@ -108,7 +130,10 @@ public class EventFlowGraph {
 //            System.out.println(currentLine);
             EFGNode tmpNode = new EFGNode();
             int len = currentLine.length();
-            if (!currentLine.contains("URL") && !currentLine.contains("label=\"terminal")) {
+            if (!currentLine.contains("URL") && currentLine.contains("label")){
+                numberOfNodes++;
+            }
+            if (!currentLine.contains("URL") && !currentLine.contains("terminal")) {
                 if (currentLine.contains("label")) {
                     tmpNode.name = currentLine.substring(0, currentLine.indexOf(' '));
                     tmpNode.selector = currentLine.substring(currentLine.indexOf('"')+1, len - 3);
@@ -121,7 +146,9 @@ public class EventFlowGraph {
 //                        System.out.println(i);
 //                    }
                     for (int i = 0; i < substrings.length-1; i++){
-                        findNode(substrings[i]).parent = findNode(substrings[i+1]);
+                        if (findNode(substrings[i]) != null) {
+                            findNode(substrings[i]).parent = findNode(substrings[i + 1]);
+                        }
                     }
                 }
             }
@@ -137,7 +164,9 @@ public class EventFlowGraph {
                 roots.add(i);
             } else {
                 i.simple = false;
+//                System.out.println(i.name + i.parent.name + i.parent.simple);
                 findNode(i.parent.name).simple = false;
+//                System.out.println(i.name + i.parent.name + i.parent.simple);
             }
         }
         System.out.println("Number of roots " + roots.size());
@@ -160,10 +189,10 @@ public class EventFlowGraph {
         int n = roots.size()-1;
         int[] combinations = new int [length];
         for (int i = 0; i < length; i++){
-                combinations[i] = i;
+            combinations[i] = i;
         }
 
-        System.out.println("length " + length + " path length " + pathLength);
+//        System.out.println("length " + length + " path length " + pathLength);
 
         while(true){
 //            for(int i=0;i<length;i++) //Печатаем очередную последовательность
@@ -213,10 +242,13 @@ public class EventFlowGraph {
                     curPath.add(roots.get(secondExcluded));
 
 //                    paths.add(curPath);
-                    printPath(curPath);
+                    if ((pathLength < 2) || (pathLength >=2 && curPath.size() == pathLength)) {
+                        printPath(curPath);
+                    }
 //                    System.out.println();
-
-                    addPathsFromTree(curPath);
+                    if ((pathLength < 2) || (pathLength >=2 && curPath.size() < pathLength)) {
+                        addPathsFromTree(curPath, 0);
+                    }
                 }
 
                 ArrayList<EFGNode> curPath = new ArrayList<EFGNode>();
@@ -227,9 +259,13 @@ public class EventFlowGraph {
                 }
                 curPath.add(roots.get(secondExcluded));
 //                paths.add(curPath);
-                printPath(curPath);
+                if ((pathLength < 2) || (pathLength >=2 && curPath.size() == pathLength)) {
+                    printPath(curPath);
+                }
 //                System.out.println();
-                addPathsFromTree(curPath);
+                if ((pathLength < 2) || (pathLength >=2 && curPath.size() < pathLength)) {
+                    addPathsFromTree(curPath, 0);
+                }
             }
 
             int i;
@@ -256,16 +292,16 @@ public class EventFlowGraph {
         if (pathLength <= 2) {
             printPath(curPath);
         }
-        addPathsFromTree(curPath);
+        if ((pathLength < 2) || (pathLength >=2 && curPath.size() < pathLength)) {
+            addPathsFromTree(curPath, 0);
+        }
 
 //        r++;
-        if (pathLength < 2) {
+        if (pathLength != 2) {
             while (r + 2 < n) {
                 r++;
                 generatePermutations(r, a, b);
             }
-        } else{
-            generatePermutations(pathLength-2, a, b);
         }
     }
 
@@ -299,14 +335,18 @@ public class EventFlowGraph {
     }
 
     public static void main(String[] args) throws IOException {
-        pathLength = 2;
+        pathLength = 0;
         out = new BufferedWriter(new FileWriter("Paths.txt"));
-        int graphCounter = 87;
-//        String filename = "GUIgraph"+graphCounter;
-        String filename = "GUIgraph";
+        int graphCounter = 1;
+        String filename = "GUIgraph"+graphCounter;
+//        String filename = "GUIgraph";
 
         parseGUIGraph(filename);
         System.out.println("Number of nodes " + nodes.size());
+        System.out.println("Number of all nodes " + numberOfNodes);
+        if (pathLength > nodes.size()){
+            return;
+        }
 
         markSimpleNodes();
 
@@ -328,5 +368,8 @@ public class EventFlowGraph {
 
         out.close();
         System.out.println("Found paths: " + numberOfPaths);
+        Date d = new Date();
+        SimpleDateFormat format1 = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
+        System.out.println(format1.format(d)); //25.02.2013 09:03
     }
 }
