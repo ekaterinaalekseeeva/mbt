@@ -451,7 +451,7 @@ public class Parser {
         System.out.println("Drawing graph " + graphCounter);
         URLCounter = 0;
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter("GUIgraph"+graphCounter+".gv"));
+            BufferedWriter out = new BufferedWriter(new FileWriter("GUIgraph"+graphCounter));
 
             out.write("graph GUIgraph" + graphCounter + " {\n");
             StringBuilder curStr = new StringBuilder();

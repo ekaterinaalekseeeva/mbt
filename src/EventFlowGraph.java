@@ -6,7 +6,7 @@ import java.util.ArrayList;
  */
 public class EventFlowGraph {
     public static int pathLength;
-    public static int numberOfPaths;
+    public static long numberOfPaths;
     public static ArrayList<EFGNode> nodes = new ArrayList<EFGNode>();
     public static ArrayList<EFGNode> roots = new ArrayList<EFGNode>();
     public static ArrayList<PathInTree> pathsInTrees = new ArrayList<PathInTree>();
