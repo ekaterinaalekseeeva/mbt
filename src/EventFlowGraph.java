@@ -55,14 +55,14 @@ public class EventFlowGraph {
 
     public static void printPath(ArrayList<EFGNode> path) {
         numberOfPaths++;
-        try {
-            for (EFGNode j : path) {
-                out.write(j.name + " ");
-            }
-            out.write("\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            for (EFGNode j : path) {
+//                out.write(j.name + " ");
+//            }
+//            out.write("\n");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static ArrayList<EFGNode> insertFragmentInPath(ArrayList<EFGNode> pathBeforeInsert, ArrayList<EFGNode> fragment, ArrayList<EFGNode> pathAfterInsert){
@@ -108,7 +108,7 @@ public class EventFlowGraph {
 //            System.out.println(currentLine);
             EFGNode tmpNode = new EFGNode();
             int len = currentLine.length();
-            if (!currentLine.contains("URL") && !currentLine.contains("terminal")) {
+            if (!currentLine.contains("URL") && !currentLine.contains("label=\"terminal")) {
                 if (currentLine.contains("label")) {
                     tmpNode.name = currentLine.substring(0, currentLine.indexOf(' '));
                     tmpNode.selector = currentLine.substring(currentLine.indexOf('"')+1, len - 3);

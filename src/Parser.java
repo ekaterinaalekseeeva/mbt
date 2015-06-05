@@ -734,7 +734,7 @@ public class Parser {
 //        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWD\\chromedriver\\chromedriver.exe");
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
-        baseURL = "http://unit-530.labs.intellij.net:8080/issue/BDP-652";
+        baseURL = "http://unit-530:8080/issue/MAIL-1";
         login();
         driver.get(baseURL);
         //todo: waiting
