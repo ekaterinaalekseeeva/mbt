@@ -282,15 +282,15 @@ public class Parser {
 //                foundWebElements.add(elem);
                 String xpathSelector = createSelector(elem, Constants.xpath_selector);
                 WebElement par = driver.findElement(By.xpath(xpathSelector + "/.."));
-                WebElement parpar = driver.findElement(By.xpath(xpathSelector + "/../.."));
+                WebElement grandpar = driver.findElement(By.xpath(xpathSelector + "/../.."));
                 String parSelector = createSelector(par, Constants.css_selector);
-                String parparSelector = createSelector(parpar, Constants.css_selector);
+                String grandparSelector = createSelector(grandpar, Constants.css_selector);
                 String cssSelector = createSelector(elem, Constants.css_selector);
-                System.out.println(parparSelector + " " + parSelector + " " + cssSelector);
-                if (ignored && !ignoredSelectors.contains(parparSelector + " " + parSelector + " " + cssSelector)) {
-                    ignoredSelectors.add(parparSelector + " " + parSelector + " " + cssSelector);
+                System.out.println(grandparSelector + " " + parSelector + " " + cssSelector);
+                if (ignored && !ignoredSelectors.contains(grandparSelector + " " + parSelector + " " + cssSelector)) {
+                    ignoredSelectors.add(grandparSelector + " " + parSelector + " " + cssSelector);
                 } else
-                    if (!ignored && !ignoredSelectors.contains(parparSelector + " " + parSelector + " " + cssSelector) && !selectors.contains(parparSelector + " " + parSelector + " " + cssSelector)) {
+                    if (!ignored && !ignoredSelectors.contains(grandparSelector + " " + parSelector + " " + cssSelector) && !selectors.contains(grandparSelector + " " + parSelector + " " + cssSelector)) {
                         Element tmpEl = new Element();
                         tmpEl.setElement(elem);
                         tmpEl.setTerminal(terminal);
@@ -299,12 +299,12 @@ public class Parser {
                             tmpEl.setSpCondEl(spCondEl);
                         }
                         tmpEl.setCondTerminal(condTerminal);
-                        tmpEl.setSelector(parparSelector + " " + parSelector + " " + cssSelector);
+                        tmpEl.setSelector(grandparSelector + " " + parSelector + " " + cssSelector);
                         tmpEl.setNumber(elems.indexOf(elem));
                         tmpEl.setAction(action);
                         tmpEl.setParent(parent);
                         foundElements.add(tmpEl);
-                        selectors.add(parparSelector + " " + parSelector + " " + cssSelector);
+                        selectors.add(grandparSelector + " " + parSelector + " " + cssSelector);
                         System.out.println("added");
                     }
             }
