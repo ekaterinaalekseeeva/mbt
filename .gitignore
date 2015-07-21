@@ -12,6 +12,7 @@
 *.iws
 *.iml
 .idea
+.idea/*
 .gradle
 build
 target
@@ -45,3 +46,11 @@ classes_gen/
 # Other folders #
 ######################
 *.csproj.*txt
+
+
+#Generated files#
+######################
+*.dot
+GUIgraph*
+Paths.txt
+settings*

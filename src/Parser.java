@@ -1,6 +1,8 @@
+import Selectors.Selector;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.SystemClock;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -20,22 +22,8 @@ public class Parser {
     private static Pages pages = new Pages();
 
 
-//    TODO: think about adding other elements (div?)
-    private static String[] clickableElements = {
-            "a",
-//            "a[href]",
-            "button",
-            "span.checkbox",
-            "span[class*='toggle']",
-            "span[class*='btn']",
-            "td[class*='tabpanel-item']",
-            "input[type='checkbox']",
-            "ul.comboboxList > li"};
-    private static String[] writableElements = {
-//        TODO: write selectors for input properly
-            "input",
-//            "input button",
-            "textarea"};
+
+
 
 //    public static ArrayList<WebElement> foundWebElements = new ArrayList<WebElement>();
     public static ArrayList<Element> foundElements = new ArrayList<Element>();
@@ -280,16 +268,19 @@ public class Parser {
             }
             if (elem.isDisplayed()){
 //                foundWebElements.add(elem);
-                String xpathSelector = createSelector(elem, Constants.xpath_selector);
+                Selector selector1 = new Selector();
+                String xpathSelector = selector1.getXPathFilter(elem);
                 WebElement par = driver.findElement(By.xpath(xpathSelector + "/.."));
                 WebElement parpar = driver.findElement(By.xpath(xpathSelector + "/../.."));
-                String parSelector = createSelector(par, Constants.css_selector);
-                String parparSelector = createSelector(parpar, Constants.css_selector);
-                String cssSelector = createSelector(elem, Constants.css_selector);
+
+                String parSelector = selector1.getCSSFilter(par);
+                String parparSelector = selector1.getCSSFilter(parpar);
+                String cssSelector = selector1.getCSSFilter(elem);
                 System.out.println(parparSelector + " " + parSelector + " " + cssSelector);
                 if (ignored && !ignoredSelectors.contains(parparSelector + " " + parSelector + " " + cssSelector)) {
                     ignoredSelectors.add(parparSelector + " " + parSelector + " " + cssSelector);
                 } else
+                    //#?!
                     if (!ignored && !ignoredSelectors.contains(parparSelector + " " + parSelector + " " + cssSelector) && !selectors.contains(parparSelector + " " + parSelector + " " + cssSelector) && !(parparSelector + " " + parSelector + " " + cssSelector).equals("div[class*='yt-attach-file-dialog__permitted-group-fieldset'] div[class*='combobox'] a[class*='arrow']")) {
                         Element tmpEl = new Element();
                         tmpEl.setElement(elem);
@@ -313,6 +304,14 @@ public class Parser {
     }
 
 // Calls parsing method for different types of elements
+
+    /**
+     *
+     * @param pageName
+     * @param parent
+     * @param area
+     * @param selectors
+     */
     public static void parsingPage(String pageName, Element parent, String area, ArrayList<SpecialConditionsElement.AllowedSelector> selectors){
 //        System.out.println("parsingPage entered!");
         ArrayList<String> necessary = new ArrayList<String>();
@@ -343,7 +342,7 @@ public class Parser {
                     selector = area + " " + s;
                 }
 
-                //            System.out.println(selector);
+                System.out.println(selector);
                 parsingElements(selector, Constants.action_click, parent, true, false, false, false, null);
             }
 
@@ -370,7 +369,7 @@ public class Parser {
             }
 
             if (selectors == null) {
-                for (String s : clickableElements) {
+                for (String s : Constants.Elements.clickableElements) {
                     if (area == null) {
                         selector = s;
                     } else {
@@ -379,7 +378,7 @@ public class Parser {
                     parsingElements(selector, Constants.action_click, parent, false, false, false, false, null);
                 }
 
-                for (String s : writableElements) {
+                for (String s : Constants.Elements.writableElements) {
                     if (area == null) {
                         selector = s;
                     } else {
@@ -713,14 +712,16 @@ public class Parser {
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
-
-                String url = driver.getCurrentUrl();
-                System.out.println("URL" + url);
-                if (!url.equals(baseURL)) {
-                    elem.setUrl(url);
-                    driver.get(baseURL);
+                try {
+                    String url = driver.getCurrentUrl();
+                    System.out.println("URL " + url);
+                    if (!url.equals(baseURL)) {
+                        elem.setUrl(url);
+                        driver.get(baseURL);
+                    }
+                }catch (UnhandledAlertException e){
+                    System.out.println(e.getMessage());
                 }
-
                 //todo: wait until page is updated
                 try {
                     Thread.sleep(5000);                 //1000 milliseconds is one second.
@@ -734,22 +735,23 @@ public class Parser {
     }
 
     public static void login(){
-        driver.get("http://unit-530.labs.intellij.net:8080/hub/auth/login");
+        driver.get("http://unit-775:8080/login");
         try {
             Thread.sleep(1500);
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-        driver.findElement(By.cssSelector("input#username")).sendKeys("root");
-        driver.findElement(By.cssSelector("input#password")).sendKeys("root");
-        driver.findElement(By.cssSelector("button.login-button")).click();
+        System.out.print(By.cssSelector("input"));
+        driver.findElement(By.id("id_l.L.login")).sendKeys("root");
+        driver.findElement(By.id("id_l.L.password")).sendKeys("root");
+        driver.findElement(By.id("id_l.L.loginButton")).click();
     }
 
     public static void main(String[] args) {
 //        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWD\\chromedriver\\chromedriver.exe");
 //        driver =  new ChromeDriver();
         String pageName = "FSI";
-        baseURL = "http://unit-530:8080/issue/BDP-652";
+        baseURL = "unit-775:8080/issue/fsefs-1";
         login();
         driver.get(baseURL);
 
